@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Your Account - Online Bookstore</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- ======================= NAVBAR ======================= -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand" href="/"><i class="bi bi-book-half me-2"></i>Online Bookstore</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <% if (user) { %>
+        <ul class="navbar-nav">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle btn btn-outline-light btn-sm text-warning fw-bold" href="#" id="accountDropdown" role="button" data-bs-toggle="dropdown">
+              <i class="bi bi-person-circle me-1"></i> Hello, <%= user.username %> ▼
+            </a>
+            <div class="dropdown-menu dropdown-menu-end p-3 account-dropdown">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-person-circle fs-2 text-primary me-2"></i>
+                    <div>
+                      <p class="mb-0 fw-bold"><%= user.username %></p>
+                      <small class="text-muted">Logged in</small>
+                    </div>
+                  </div>
+                  <h6 class="fw-bold">Your Account</h6>
+                  <a class="dropdown-item" href="/"><i class="bi bi-house-door-fill me-2"></i> Home</a>
+                  <a class="dropdown-item" href="/products"><i class="bi bi-box-seam me-2"></i> Products</a>
+                  <a class="dropdown-item" href="/cart"><i class="bi bi-cart me-2"></i> Your Cart</a>
+                  <a class="dropdown-item" href="/orders"><i class="bi bi-bag-check me-2"></i> Your Orders</a>
+                  <a class="dropdown-item text-danger" href="/users/logout"><i class="bi bi-box-arrow-right me-2"></i> Logout</a>
+                  <a class="dropdown-item text-primary fw-bold" href="/future-updates"><i class="bi bi-lightning-fill me-2"></i> Future Updates</a>
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+        <% } else { %>
+        <a href="/users/login" class="btn btn-outline-light btn-sm">Login</a>
+        <% } %>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ======================= MAIN CONTENT ======================= -->
+  <div class="container mt-5">
+    <h2 class="text-center mb-4">👤 Account Dashboard</h2>
+
+    <div class="row justify-content-center">
+      <div class="col-md-7">
+
+        <!-- Account Info -->
+        <div class="card shadow-lg mb-4">
+          <div class="card-body">
+            <h4 class="card-title mb-3">Account Info</h4>
+            <p><strong>Username:</strong> <%= user.username %></p>
+            <p><strong>Email:</strong> <%= user.email %></p>
+
+            <% if (user.address || user.phone) { %>
+              <hr>
+              <h5>📦 Recent Shipping Info</h5>
+              <% if (user.address) { %>
+                <p><strong>Address:</strong> <%= user.address %></p>
+              <% } %>
+              <% if (user.phone) { %>
+                <p><strong>Phone: +91</strong> <%= user.phone %></p>
+              <% } %>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- Update Info Form -->
+        <div class="card shadow-lg mb-4">
+          <div class="card-body">
+            <h4 class="card-title mb-3">✏️ Update Contact Info</h4>
+            <form method="POST" action="/users/update-info">
+              <div class="mb-3">
+                <label for="phone" class="form-label">Phone Number</label>
+                <input type="text" name="phone" id="phone" class="form-control" placeholder="e.g. 9876543210" value="<%= user.phone !== 'Not available' ? user.phone : '' %>">
+              </div>
+              <div class="mb-3">
+                <label for="address" class="form-label">Shipping Address</label>
+                <textarea name="address" id="address" class="form-control" rows="3" placeholder="Enter your shipping address"><%= user.address !== 'Not available' ? user.address : '' %></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary">Save Info</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Order Summary
+        <div class="card shadow-lg mb-4">
+          <div class="card-body">
+            <h4 class="card-title mb-3">📊 Order Summary</h4>
+            <p><strong>Total Orders:</strong> <%= user.totalOrders %></p>
+
+            <% if (user.allBooks.length > 0) { %>
+              <h6 class="mt-3">📚 Books Purchased:</h6>
+              <ul class="list-group list-group-flush">
+                <% user.allBooks.forEach((book, index) => { %>
+                  <li class="list-group-item"><%= index + 1 %>. <%= book %></li>
+                <% }) %>
+              </ul>
+            <% } else { %>
+              <p class="text-muted">No books ordered yet.</p>
+            <% } %>
+          </div>
+        </div> -->
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-dark text-white text-center py-3 mt-5">
+    <p>© 2025 Online Bookstore. All rights reserved.</p>
+    <p>📞 Contact us: <strong>+91 98765 43210</strong></p>
+    <p>📧 Email: <strong>support@onlinebookstore.com</strong></p>
+    <p>Follow us on: 
+        <a href="#" class="text-white mx-2">Facebook</a> | 
+        <a href="#" class="text-white mx-2">Instagram</a> | 
+        <a href="#" class="text-white mx-2">Twitter</a>
+    </p>
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
