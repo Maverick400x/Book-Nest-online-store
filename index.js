@@ -16,7 +16,8 @@ import contactRoutes from "./routes/contact.routes.js";
 
 import { loggerMiddleware } from "./middlewares/logger.middleware.js";
 import { products } from "./models/product.model.js";
-import { orders } from "./models/order.model.js";
+import { Order } from "./models/order.model.js";
+
 
 const app = express();
 
