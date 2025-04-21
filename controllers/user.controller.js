@@ -51,7 +51,7 @@ export const registerUser = async (req, res) => {
     await sendMail(
       email,
       "Welcome to Online Bookstore",
-      `Hello ${username},\n\nWelcome to Online Bookstore! 🎉\nRegistered on: ${timestamp}`
+      `Hello ${username},\n\nWelcome to Online Bookstore! 🎉\nRegistered on: ${timestamp}\n\nWe're excited to have you on board. Explore our vast collection of books, enjoy exclusive discounts, and discover amazing deals!\n\nIf you have any questions or need assistance, feel free to reach out to our support team. We're here to help you.\n\nHappy reading!\nThe Online Bookstore Team`
     );
 
     res.redirect("/users/login");
@@ -90,7 +90,8 @@ export const loginUser = async (req, res) => {
     await sendMail(
       user.email,
       "Login Alert",
-      `Hello ${user.username},\n\nYou just logged in on ${timestamp}`
+      `Hello ${user.username},\n\nYou just logged in on ${timestamp}.\n\nIf this was you, no action is needed. However, if you did not log in, please secure your account immediately by changing your password.\n\nIf you need assistance, feel free to contact our support team.\n\nStay safe!\nThe Online Bookstore Team`
+
     );
 
     res.redirect("/users/account");
@@ -108,7 +109,8 @@ export const logoutUser = async (req, res) => {
     await sendMail(
       user.email,
       "Logout Alert",
-      `Hello ${user.username},\n\nYou logged out on ${timestamp}`
+      `Hello ${user.username},\n\nYou logged out on ${timestamp}.\n\nIf you did not log out yourself, please ensure your account is secure and change your password immediately.\n\nIf you have any concerns or need assistance, feel free to reach out to our support team.\n\nThank you for using Online Bookstore!\nThe Online Bookstore Team`
+
     );
   }
 
