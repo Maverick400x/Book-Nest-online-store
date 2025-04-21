@@ -1,7 +1,7 @@
-import { sendMail } from "../utils/mailer.js";
-import { User } from "../models/user.model.js";
-import { orders } from "../models/order.model.js";
 import bcrypt from "bcryptjs";
+import { User } from "../models/user.model.js";
+import { Order } from "../models/order.model.js";
+import { sendMail } from "../utils/mailer.js";
 
 // Render Pages
 export const renderLoginPage = (req, res) => res.render("login", { title: "Login" });
@@ -15,8 +15,8 @@ export const renderAccountPage = async (req, res) => {
     const dbUser = await User.findById(req.session.user.id);
     if (!dbUser) return res.redirect("/users/login");
 
-    const userOrders = orders.filter(order => order.userId === dbUser._id.toString());
-    const latestOrder = userOrders[userOrders.length - 1];
+    const userOrders = await Order.find({ userId: dbUser._id.toString() }).sort({ _id: -1 });
+    const latestOrder = userOrders[0];
 
     const enrichedUser = {
       id: dbUser._id,
@@ -51,7 +51,7 @@ export const registerUser = async (req, res) => {
     await sendMail(
       email,
       "Welcome to Online Bookstore",
-      `Hello ${username},\n\nWelcome to Online Bookstore! 🎉\nRegistered on: ${timestamp}\n\nWe're excited to have you on board. Explore our vast collection of books, enjoy exclusive discounts, and discover amazing deals!\n\nIf you have any questions or need assistance, feel free to reach out to our support team. We're here to help you.\n\nHappy reading!\nThe Online Bookstore Team`
+      `Hello ${username},\n\nWelcome to Online Bookstore! 🎉\nRegistered on: ${timestamp}\n\nWe're excited to have you on board. Explore our vast collection of books, enjoy exclusive discounts, and discover amazing deals!\n\nIf you have any questions or need assistance, feel free to reach out to our support team.\n\nHappy reading!\nThe Online Bookstore Team`
     );
 
     res.redirect("/users/login");
@@ -90,8 +90,7 @@ export const loginUser = async (req, res) => {
     await sendMail(
       user.email,
       "Login Alert",
-      `Hello ${user.username},\n\nYou just logged in on ${timestamp}.\n\nIf this was you, no action is needed. However, if you did not log in, please secure your account immediately by changing your password.\n\nIf you need assistance, feel free to contact our support team.\n\nStay safe!\nThe Online Bookstore Team`
-
+      `Hello ${user.username},\n\nYou just logged in on ${timestamp}.\n\nIf this was you, no action is needed. However, if you did not log in, please secure your account immediately by changing your password.\n\nStay safe!\nOnline Bookstore`
     );
 
     res.redirect("/users/account");
@@ -109,8 +108,7 @@ export const logoutUser = async (req, res) => {
     await sendMail(
       user.email,
       "Logout Alert",
-      `Hello ${user.username},\n\nYou logged out on ${timestamp}.\n\nIf you did not log out yourself, please ensure your account is secure and change your password immediately.\n\nIf you have any concerns or need assistance, feel free to reach out to our support team.\n\nThank you for using Online Bookstore!\nThe Online Bookstore Team`
-
+      `Hello ${user.username},\n\nYou logged out on ${timestamp}.\n\nIf this was not you, please change your password immediately.\n\nThanks for using Online Bookstore!`
     );
   }
 
