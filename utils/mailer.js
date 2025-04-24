@@ -20,7 +20,7 @@ export const sendMail = async (to, subject, text) => {
   try {
     // Send email using the transporter
     await transporter.sendMail({
-      from: `"Online Bookstore" <${process.env.EMAIL_USER}>`, // Email sender
+      from: `"BookNest" <${process.env.EMAIL_USER}>`, // Email sender
       to, // Receiver email address
       subject, // Subject of the email
       text, // Email body content
