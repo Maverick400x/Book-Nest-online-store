@@ -7,6 +7,129 @@ import { sendMail } from "../utils/mailer.js";
 export const renderLoginPage = (req, res) => res.render("login", { title: "Login" });
 export const renderRegisterPage = (req, res) => res.render("register", { title: "Register" });
 
+// Traditional Login (added this as it was missing)
+export const loginUser = async (req, res) => {
+  const { identifier, password } = req.body;
+  const timestamp = new Date().toLocaleString();
+
+  try {
+    const user = await User.findOne({
+      $or: [{ username: identifier }, { email: identifier }]
+    });
+
+    if (!user) return res.send("Invalid credentials");
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.send("Invalid credentials");
+
+    req.session.user = {
+      id: user._id,
+      username: user.username,
+      email: user.email
+    };
+
+    await sendMail(
+      user.email,
+      "Login Notification",
+      `Hello ${user.username},\n\nYou logged in on ${timestamp}.\n\nIf this wasn't you, please secure your account.`
+    );
+
+    res.redirect("/users/account");
+  } catch (err) {
+    res.status(500).send("Login failed: " + err.message);
+  }
+};
+
+// OTP login - Step 1
+export const requestOtpLogin = async (req, res) => {
+  const { identifier } = req.body;
+  const timestamp = new Date().toLocaleString();
+
+  try {
+    const user = await User.findOne({
+      $or: [{ username: identifier }, { email: identifier }]
+    });
+
+    if (!user) return res.send("User not found!");
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpiry = Date.now() + 5 * 60 * 1000;
+
+    user.otp = { code: otp, expiresAt: otpExpiry };
+    await user.save();
+
+    await sendMail(
+      user.email,
+      "Your OTP for BookNest Login",
+      `Hello ${user.username},\n\nYour OTP is: ${otp}\nExpires in 5 minutes.\n\nBookNest`
+    );
+
+    res.render("verify-otp", { email: user.email, title: "Verify OTP" });
+  } catch (err) {
+    res.status(500).send("Failed to send OTP: " + err.message);
+  }
+};
+
+// OTP login - Step 2
+export const verifyOtp = async (req, res) => {
+  const { email, otp } = req.body;
+  const timestamp = new Date().toLocaleString();
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user || !user.otp) return res.send("Invalid or expired OTP!");
+
+    const { code, expiresAt } = user.otp;
+
+    if (Date.now() > expiresAt) return res.send("OTP expired!");
+    if (otp !== code) return res.send("Incorrect OTP!");
+
+    user.otp = undefined;
+    await user.save();
+
+    req.session.user = {
+      id: user._id,
+      username: user.username,
+      email: user.email
+    };
+
+    await sendMail(
+      user.email,
+      "Login Successful",
+      `Hello ${user.username},\n\nYou logged in using OTP on ${timestamp}.`
+    );
+
+    res.redirect("/users/account");
+  } catch (err) {
+    res.status(500).send("Failed to verify OTP: " + err.message);
+  }
+};
+
+// Register
+export const registerUser = async (req, res) => {
+  const { username, email, password } = req.body;
+  const timestamp = new Date().toLocaleString();
+
+  try {
+    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+    if (existingUser) return res.send("Username or Email already exists!");
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({ username, email, password: hashedPassword });
+    await newUser.save();
+
+    await sendMail(
+      email,
+      "Welcome to BookNest",
+      `Hello ${username},\n\nWelcome to BookNest! 🎉 Registered on: ${timestamp}`
+    );
+
+    res.redirect("/users/login");
+  } catch (err) {
+    res.status(500).send("Registration failed: " + err.message);
+  }
+};
+
 // Render Account Dashboard
 export const renderAccountPage = async (req, res) => {
   if (!req.session.user) return res.redirect("/users/login");
@@ -35,70 +158,6 @@ export const renderAccountPage = async (req, res) => {
   }
 };
 
-// Register
-export const registerUser = async (req, res) => {
-  const { username, email, password } = req.body;
-  const timestamp = new Date().toLocaleString();
-
-  try {
-    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
-    if (existingUser) return res.send("Username or Email already exists!");
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ username, email, password: hashedPassword });
-    await newUser.save();
-
-    await sendMail(
-      email,
-      "Welcome to BookNest",
-      `Hello ${username},\n\nWelcome to BookNest! 🎉\nRegistered on: ${timestamp}\n\nWe're excited to have you on board. Explore our vast collection of books, enjoy exclusive discounts, and discover amazing deals!\n\nIf you have any questions or need assistance, feel free to reach out to our support team.\n\nHappy reading!\nThe BookNest Team`
-    );
-
-    res.redirect("/users/login");
-  } catch (err) {
-    res.status(500).send("Registration failed: " + err.message);
-  }
-};
-
-// Login
-export const loginUser = async (req, res) => {
-  const { identifier, password } = req.body;
-  const timestamp = new Date().toLocaleString();
-
-  try {
-    const user = await User.findOne({
-      $or: [{ username: identifier }, { email: identifier }]
-    });
-
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      if (identifier.includes("@")) {
-        await sendMail(
-          identifier,
-          "Failed Login Attempt",
-          `Hello,\n\nFailed login attempt on ${timestamp}`
-        );
-      }
-      return res.send("Invalid credentials!");
-    }
-
-    req.session.user = {
-      id: user._id,
-      username: user.username,
-      email: user.email
-    };
-
-    await sendMail(
-      user.email,
-      "Login Alert",
-      `Hello ${user.username},\n\nYou just logged in on ${timestamp}.\n\nIf this was you, no action is needed. However, if you did not log in, please secure your account immediately by changing your password.\n\nStay safe!\nBookNest`
-    );
-
-    res.redirect("/users/account");
-  } catch (err) {
-    res.status(500).send("Login failed: " + err.message);
-  }
-};
-
 // Logout
 export const logoutUser = async (req, res) => {
   const user = req.session.user;
@@ -108,14 +167,14 @@ export const logoutUser = async (req, res) => {
     await sendMail(
       user.email,
       "Logout Alert",
-      `Hello ${user.username},\n\nYou logged out on ${timestamp}.\n\nIf this was not you, please change your password immediately.\n\nThanks for using BookNest!`
+      `Hello ${user.username},\n\nYou logged out on ${timestamp}.`
     );
   }
 
   req.session.destroy(() => res.redirect("/"));
 };
 
-// Update contact info (phone & address)
+// Update contact info
 export const updateContactInfo = async (req, res) => {
   const { phone, address } = req.body;
   const sessionUser = req.session.user;
