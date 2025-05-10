@@ -6,7 +6,9 @@ import {
   renderLoginPage,
   renderRegisterPage,
   renderAccountPage,
-  updateContactInfo
+  updateContactInfo,
+  requestOtpLogin,
+  verifyOtp
 } from "../controllers/user.controller.js";
 
 const router = express.Router();
@@ -18,5 +20,9 @@ router.post("/register", registerUser);
 router.get("/logout", logoutUser);
 router.get("/account", renderAccountPage);
 router.post("/update-info", updateContactInfo);
+
+// OTP-based login routes
+router.post("/request-otp", requestOtpLogin);
+router.post("/verify-otp", verifyOtp);
 
 export default router;
