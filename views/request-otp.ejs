@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Request OTP - BookNest</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/login.css">
+</head>
+<body>
+
+  <div class="d-flex min-vh-100">
+    <!-- Left Info Panel -->
+    <div class="left-panel d-none d-md-flex flex-column justify-content-center text-white p-5">
+      <div>
+        <h1 class="fw-bold">Request OTP</h1>
+        <p class="lead mt-3">
+          Enter your username or email to receive a one-time password (OTP) for login.
+        </p>
+      </div>
+    </div>
+
+    <!-- Right OTP Request Form -->
+    <div class="right-panel d-flex align-items-center justify-content-center flex-fill bg-light">
+      <div class="form-container p-4 shadow-lg rounded">
+        <h2 class="text-center mb-4">Request OTP</h2>
+
+        <!-- OTP Request Form -->
+        <form action="/users/request-otp" method="POST">
+          <div class="mb-3 input-group">
+            <span class="input-group-text"><i class="bi bi-person-circle"></i></span>
+            <input type="text" name="identifier" id="identifier" class="form-control" placeholder="Username or Email" required>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100">Send OTP</button>
+        </form>
+
+        <div class="text-center mt-3">
+          <a href="/users/login" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> Back to Login
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
