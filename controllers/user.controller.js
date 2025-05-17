@@ -59,10 +59,26 @@ export const requestOtpLogin = async (req, res) => {
     await user.save();
 
     await sendMail(
-      user.email,
-      "Your OTP for BookNest Login",
-      `Hello ${user.username},\n\nYour OTP is: ${otp}\nExpires in 5 minutes.\n\nBookNest`
-    );
+  user.email,
+  "BookNest Login - Your One-Time Password (OTP)",
+  `Hello ${user.username},
+
+  Thank you for choosing BookNest.
+
+  Your One-Time Password (OTP) is: ${otp}
+  🔒 This code is valid for the next 5 minutes.
+
+  Please enter this OTP on the verification page to complete your login process.
+
+  If you did not initiate this request, please ignore this email or contact our support team immediately.
+
+  Happy Reading,
+  📚 The BookNest Team
+
+  —
+  Need help? Reach out to us at support@booknest.com
+  `
+  );
 
     res.render("verify-otp", { email: user.email, title: "Verify OTP" });
   } catch (err) {
