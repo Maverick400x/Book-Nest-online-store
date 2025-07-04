@@ -6,23 +6,22 @@ import {
   renderLoginPage,
   renderRegisterPage,
   renderAccountPage,
-  updateContactInfo,
-  requestOtpLogin,
-  verifyOtp
-} from "../controllers/user.controller.js";
+  updateContactInfo
+} from "../controllers/user.controller.js"; // Make sure OTP functions are removed from this file too
 
 const router = express.Router();
 
+// Render login and register pages
 router.get("/login", renderLoginPage);
 router.get("/register", renderRegisterPage);
+
+// Auth actions
 router.post("/login", loginUser);
 router.post("/register", registerUser);
 router.get("/logout", logoutUser);
+
+// Dashboard and profile updates
 router.get("/account", renderAccountPage);
 router.post("/update-info", updateContactInfo);
-
-// OTP-based login routes
-router.post("/request-otp", requestOtpLogin);
-router.post("/verify-otp", verifyOtp);
 
 export default router;
