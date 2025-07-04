@@ -7,20 +7,21 @@ import { sendMail } from "../utils/mailer.js";
 export const renderLoginPage = (req, res) => res.render("login", { title: "Login" });
 export const renderRegisterPage = (req, res) => res.render("register", { title: "Register" });
 
-// Traditional Login (added this as it was missing)
+// Traditional Login
 export const loginUser = async (req, res) => {
   const { identifier, password } = req.body;
   const timestamp = new Date().toLocaleString();
 
   try {
+    if (!identifier || !password) return res.send("❌ Please enter both username/email and password.");
+
     const user = await User.findOne({
       $or: [{ username: identifier }, { email: identifier }]
     });
 
-    if (!user) return res.send("Invalid credentials");
-
+    if (!user) return res.send("❌ Account not found. Please register first.");
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.send("Invalid credentials");
+    if (!isMatch) return res.send("❌ Incorrect password.");
 
     req.session.user = {
       id: user._id,
@@ -36,88 +37,7 @@ export const loginUser = async (req, res) => {
 
     res.redirect("/users/account");
   } catch (err) {
-    res.status(500).send("Login failed: " + err.message);
-  }
-};
-
-// OTP login - Step 1
-export const requestOtpLogin = async (req, res) => {
-  const { identifier } = req.body;
-  const timestamp = new Date().toLocaleString();
-
-  try {
-    const user = await User.findOne({
-      $or: [{ username: identifier }, { email: identifier }]
-    });
-
-    if (!user) return res.send("User not found!");
-
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpiry = Date.now() + 5 * 60 * 1000;
-
-    user.otp = { code: otp, expiresAt: otpExpiry };
-    await user.save();
-
-    await sendMail(
-  user.email,
-  "BookNest Login - Your One-Time Password (OTP)",
-  `Hello ${user.username},
-
-  Thank you for choosing BookNest.
-
-  Your One-Time Password (OTP) is: ${otp}
-  🔒 This code is valid for the next 5 minutes.
-
-  Please enter this OTP on the verification page to complete your login process.
-
-  If you did not initiate this request, please ignore this email or contact our support team immediately.
-
-  Happy Reading,
-  📚 The BookNest Team
-
-  —
-  Need help? Reach out to us at support@booknest.com
-  `
-  );
-
-    res.render("verify-otp", { email: user.email, title: "Verify OTP" });
-  } catch (err) {
-    res.status(500).send("Failed to send OTP: " + err.message);
-  }
-};
-
-// OTP login - Step 2
-export const verifyOtp = async (req, res) => {
-  const { email, otp } = req.body;
-  const timestamp = new Date().toLocaleString();
-
-  try {
-    const user = await User.findOne({ email });
-    if (!user || !user.otp) return res.send("Invalid or expired OTP!");
-
-    const { code, expiresAt } = user.otp;
-
-    if (Date.now() > expiresAt) return res.send("OTP expired!");
-    if (otp !== code) return res.send("Incorrect OTP!");
-
-    user.otp = undefined;
-    await user.save();
-
-    req.session.user = {
-      id: user._id,
-      username: user.username,
-      email: user.email
-    };
-
-    await sendMail(
-      user.email,
-      "Login Successful",
-      `Hello ${user.username},\n\nYou logged in using OTP on ${timestamp}.`
-    );
-
-    res.redirect("/users/account");
-  } catch (err) {
-    res.status(500).send("Failed to verify OTP: " + err.message);
+    res.status(500).send("❌ Login failed: " + err.message);
   }
 };
 
@@ -126,9 +46,25 @@ export const registerUser = async (req, res) => {
   const { username, email, password } = req.body;
   const timestamp = new Date().toLocaleString();
 
+  // Validation: username
+  const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_]{2,19}$/;
+  if (!usernameRegex.test(username)) {
+    return res.send("❌ Username must start with a letter and be 3–20 characters long (letters, numbers, underscores only).");
+  }
+
+  // Validation: email must be Gmail
+  if (!email.endsWith("@gmail.com")) {
+    return res.send("❌ Only Gmail addresses are allowed. Please use an email ending with @gmail.com.");
+  }
+
+  // Validation: password length
+  if (!password || password.length < 6) {
+    return res.send("❌ Password must be at least 6 characters long.");
+  }
+
   try {
     const existingUser = await User.findOne({ $or: [{ username }, { email }] });
-    if (existingUser) return res.send("Username or Email already exists!");
+    if (existingUser) return res.send("❌ Username or Email already exists!");
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({ username, email, password: hashedPassword });
@@ -137,12 +73,12 @@ export const registerUser = async (req, res) => {
     await sendMail(
       email,
       "Welcome to BookNest",
-      `Hello ${username},\n\nWelcome to BookNest! 🎉 Registered on: ${timestamp}`
+      `Hello ${username},\n\nWelcome to BookNest! 🎉 You registered on: ${timestamp}`
     );
 
     res.redirect("/users/login");
   } catch (err) {
-    res.status(500).send("Registration failed: " + err.message);
+    res.status(500).send("❌ Registration failed: " + err.message);
   }
 };
 
@@ -170,7 +106,7 @@ export const renderAccountPage = async (req, res) => {
     req.session.user = enrichedUser;
     res.render("account", { user: enrichedUser });
   } catch (err) {
-    res.status(500).send("Failed to load account: " + err.message);
+    res.status(500).send("❌ Failed to load account: " + err.message);
   }
 };
 
@@ -197,6 +133,12 @@ export const updateContactInfo = async (req, res) => {
 
   if (!sessionUser) return res.redirect("/users/login");
 
+  // ✅ Phone number validation (10 digits only)
+  const phoneRegex = /^\d{10}$/;
+  if (!phoneRegex.test(phone)) {
+    return res.send("❌ Phone number must be exactly 10 digits.");
+  }
+
   try {
     const user = await User.findById(sessionUser.id);
     if (!user) return res.redirect("/users/login");
@@ -210,6 +152,6 @@ export const updateContactInfo = async (req, res) => {
 
     res.redirect("/users/account");
   } catch (err) {
-    res.status(500).send("Failed to update info: " + err.message);
+    res.status(500).send("❌ Failed to update info: " + err.message);
   }
 };
