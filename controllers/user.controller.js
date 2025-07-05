@@ -3,25 +3,45 @@ import { User } from "../models/user.model.js";
 import { Order } from "../models/order.model.js";
 import { sendMail } from "../utils/mailer.js";
 
-// Render Pages
-export const renderLoginPage = (req, res) => res.render("login", { title: "Login" });
-export const renderRegisterPage = (req, res) => res.render("register", { title: "Register" });
+// Render Login Page
+export const renderLoginPage = (req, res) => {
+  const error = req.session.error;
+  req.session.error = null;
+  res.render("login", { title: "Login", error });
+};
 
-// Traditional Login
+// Render Register Page
+export const renderRegisterPage = (req, res) => {
+  const error = req.session.error;
+  req.session.error = null;
+  res.render("register", { title: "Register", error });
+};
+
+// Login User
 export const loginUser = async (req, res) => {
   const { identifier, password } = req.body;
   const timestamp = new Date().toLocaleString();
 
   try {
-    if (!identifier || !password) return res.send("❌ Please enter both username/email and password.");
+    if (!identifier || !password) {
+      req.session.error = "❌ Please enter both username/email and password.";
+      return res.redirect("/users/login");
+    }
 
     const user = await User.findOne({
       $or: [{ username: identifier }, { email: identifier }]
     });
 
-    if (!user) return res.send("❌ Account not found. Please register first.");
+    if (!user) {
+      req.session.error = "❌ Account not found. Please register first.";
+      return res.redirect("/users/login");
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.send("❌ Incorrect password.");
+    if (!isMatch) {
+      req.session.error = "❌ Incorrect password.";
+      return res.redirect("/users/login");
+    }
 
     req.session.user = {
       id: user._id,
@@ -32,39 +52,49 @@ export const loginUser = async (req, res) => {
     await sendMail(
       user.email,
       "Login Notification",
-      `Hello ${user.username},\n\nYou logged in on ${timestamp}.\n\nIf this wasn't you, please secure your account.`
+      `Hello ${user.username},\n\nYou logged in on ${timestamp}.`
     );
 
-    res.redirect("/users/account");
+    // ✅ Redirect to home page instead of /users/account
+    res.redirect("/");
+
   } catch (err) {
-    res.status(500).send("❌ Login failed: " + err.message);
+    req.session.error = "❌ Login failed: " + err.message;
+    res.redirect("/users/login");
   }
 };
 
-// Register
+// Register User
 export const registerUser = async (req, res) => {
   const { username, email, password } = req.body;
   const timestamp = new Date().toLocaleString();
 
-  // Validation: username
   const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_]{2,19}$/;
+
   if (!usernameRegex.test(username)) {
-    return res.send("❌ Username must start with a letter and be 3–20 characters long (letters, numbers, underscores only).");
+    req.session.error = "❌ Username must start with a letter and be 3–20 characters.";
+    return res.redirect("/users/register");
   }
 
-  // Validation: email must be Gmail
   if (!email.endsWith("@gmail.com")) {
-    return res.send("❌ Only Gmail addresses are allowed. Please use an email ending with @gmail.com.");
+    req.session.error = "❌ Only Gmail addresses are allowed.";
+    return res.redirect("/users/register");
   }
 
-  // Validation: password length
   if (!password || password.length < 6) {
-    return res.send("❌ Password must be at least 6 characters long.");
+    req.session.error = "❌ Password must be at least 6 characters.";
+    return res.redirect("/users/register");
   }
 
   try {
-    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
-    if (existingUser) return res.send("❌ Username or Email already exists!");
+    const existingUser = await User.findOne({
+      $or: [{ username }, { email }]
+    });
+
+    if (existingUser) {
+      req.session.error = "❌ Username or Email already exists!";
+      return res.redirect("/users/register");
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({ username, email, password: hashedPassword });
@@ -73,16 +103,18 @@ export const registerUser = async (req, res) => {
     await sendMail(
       email,
       "Welcome to BookNest",
-      `Hello ${username},\n\nWelcome to BookNest! 🎉 You registered on: ${timestamp}`
+      `Hello ${username},\n\nWelcome to BookNest! 🎉 Registered on: ${timestamp}`
     );
 
     res.redirect("/users/login");
+
   } catch (err) {
-    res.status(500).send("❌ Registration failed: " + err.message);
+    req.session.error = "❌ Registration failed: " + err.message;
+    res.redirect("/users/register");
   }
 };
 
-// Render Account Dashboard
+// Render Account Page (optional if needed later)
 export const renderAccountPage = async (req, res) => {
   if (!req.session.user) return res.redirect("/users/login");
 
@@ -105,6 +137,7 @@ export const renderAccountPage = async (req, res) => {
 
     req.session.user = enrichedUser;
     res.render("account", { user: enrichedUser });
+
   } catch (err) {
     res.status(500).send("❌ Failed to load account: " + err.message);
   }
@@ -126,17 +159,17 @@ export const logoutUser = async (req, res) => {
   req.session.destroy(() => res.redirect("/"));
 };
 
-// Update contact info
+// Update Contact Info
 export const updateContactInfo = async (req, res) => {
   const { phone, address } = req.body;
   const sessionUser = req.session.user;
 
   if (!sessionUser) return res.redirect("/users/login");
 
-  // ✅ Phone number validation (10 digits only)
   const phoneRegex = /^\d{10}$/;
   if (!phoneRegex.test(phone)) {
-    return res.send("❌ Phone number must be exactly 10 digits.");
+    req.session.error = "❌ Phone number must be 10 digits.";
+    return res.redirect("/users/account");
   }
 
   try {
@@ -151,6 +184,7 @@ export const updateContactInfo = async (req, res) => {
     req.session.user.address = address;
 
     res.redirect("/users/account");
+
   } catch (err) {
     res.status(500).send("❌ Failed to update info: " + err.message);
   }
