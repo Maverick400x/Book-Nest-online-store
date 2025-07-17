@@ -51,13 +51,11 @@ export const loginUser = async (req, res) => {
 
     await sendMail(
       user.email,
-      "Login Notification",
+      "📥 Login Notification",
       `Hello ${user.username},\n\nYou logged in on ${timestamp}.`
     );
 
-    // ✅ Redirect to home page instead of /users/account
     res.redirect("/");
-
   } catch (err) {
     req.session.error = "❌ Login failed: " + err.message;
     res.redirect("/users/login");
@@ -87,9 +85,7 @@ export const registerUser = async (req, res) => {
   }
 
   try {
-    const existingUser = await User.findOne({
-      $or: [{ username }, { email }]
-    });
+    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
 
     if (existingUser) {
       req.session.error = "❌ Username or Email already exists!";
@@ -98,23 +94,23 @@ export const registerUser = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({ username, email, password: hashedPassword });
+
     await newUser.save();
 
     await sendMail(
       email,
-      "Welcome to BookNest",
-      `Hello ${username},\n\nWelcome to BookNest! 🎉 Registered on: ${timestamp}`
+      "🎉 Welcome to BookNest!",
+      `Hello ${username},\n\nThanks for registering on ${timestamp}. Enjoy shopping with BookNest!`
     );
 
     res.redirect("/users/login");
-
   } catch (err) {
     req.session.error = "❌ Registration failed: " + err.message;
     res.redirect("/users/register");
   }
 };
 
-// Render Account Page (optional if needed later)
+// Account Page with Order Summary
 export const renderAccountPage = async (req, res) => {
   if (!req.session.user) return res.redirect("/users/login");
 
@@ -122,44 +118,27 @@ export const renderAccountPage = async (req, res) => {
     const dbUser = await User.findById(req.session.user.id);
     if (!dbUser) return res.redirect("/users/login");
 
-    const userOrders = await Order.find({ userId: dbUser._id.toString() }).sort({ _id: -1 });
-    const latestOrder = userOrders[0];
+    const orders = await Order.find({ userId: dbUser._id }).sort({ _id: -1 });
+    const latestOrder = orders[0];
 
     const enrichedUser = {
       id: dbUser._id,
       username: dbUser.username,
       email: dbUser.email,
-      address: dbUser.address || latestOrder?.address || "Not available",
-      phone: dbUser.phone || latestOrder?.phone || "Not available",
-      totalOrders: userOrders.length,
-      allBooks: userOrders.flatMap(order => order.items.map(item => item.title))
+      address: dbUser.address || latestOrder?.address || "Not provided",
+      phone: dbUser.phone || latestOrder?.phone || "Not provided",
+      totalOrders: orders.length,
+      allBooks: orders.flatMap(order => order.items.map(item => item.title))
     };
 
     req.session.user = enrichedUser;
     res.render("account", { user: enrichedUser });
-
   } catch (err) {
     res.status(500).send("❌ Failed to load account: " + err.message);
   }
 };
 
-// Logout
-export const logoutUser = async (req, res) => {
-  const user = req.session.user;
-  const timestamp = new Date().toLocaleString();
-
-  if (user) {
-    await sendMail(
-      user.email,
-      "Logout Alert",
-      `Hello ${user.username},\n\nYou logged out on ${timestamp}.`
-    );
-  }
-
-  req.session.destroy(() => res.redirect("/"));
-};
-
-// Update Contact Info
+// Update Contact Info (Phone, Address)
 export const updateContactInfo = async (req, res) => {
   const { phone, address } = req.body;
   const sessionUser = req.session.user;
@@ -168,7 +147,7 @@ export const updateContactInfo = async (req, res) => {
 
   const phoneRegex = /^\d{10}$/;
   if (!phoneRegex.test(phone)) {
-    req.session.error = "❌ Phone number must be 10 digits.";
+    req.session.error = "❌ Phone number must be exactly 10 digits.";
     return res.redirect("/users/account");
   }
 
@@ -184,8 +163,23 @@ export const updateContactInfo = async (req, res) => {
     req.session.user.address = address;
 
     res.redirect("/users/account");
-
   } catch (err) {
     res.status(500).send("❌ Failed to update info: " + err.message);
   }
+};
+
+// Logout User
+export const logoutUser = async (req, res) => {
+  const user = req.session.user;
+  const timestamp = new Date().toLocaleString();
+
+  if (user) {
+    await sendMail(
+      user.email,
+      "📤 Logout Alert",
+      `Hello ${user.username},\n\nYou logged out on ${timestamp}.`
+    );
+  }
+
+  req.session.destroy(() => res.redirect("/"));
 };
