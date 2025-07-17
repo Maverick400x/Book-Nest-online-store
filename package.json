@@ -17,12 +17,13 @@
     "express",
     "nodejs"
   ],
-  "author": "Your Name",
+  "author": "B srinivasa ranganath",
   "license": "ISC",
   "type": "module",
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "body-parser": "^1.20.3",
+    "crypto": "^1.0.1",
     "dotenv": "^16.3.1",
     "ejs": "^3.1.10",
     "express": "^4.21.2",
@@ -30,6 +31,7 @@
     "mongodb": "^6.15.0",
     "mongoose": "^8.13.2",
     "nodemailer": "^6.10.0",
+    "razorpay": "^2.9.6",
     "winston": "^3.17.0"
   },
   "devDependencies": {
