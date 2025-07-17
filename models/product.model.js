@@ -1,14 +1,5 @@
 export let products = [
-  {
-  id: 101,
-  title: "Demo Book for Testing",
-  author: "John Doe",
-  price: 2,
-  tag: "demo",
-  limitedEdition: false,
-  hotSale: false,
-  description: "This is a sample book added for testing purposes. Not for actual sale."
-},
+
   {
   id: 1,
   title: "The Alchemist",
@@ -1060,7 +1051,7 @@ export let products = [
   {
   id: 101,
   title: "Demo Book for Testing",
-  author: "NOT FOR SALE",
+  author: "NOT APPLICABLE",
   price: 2,
   tag: "demo",
   limitedEdition: false,
