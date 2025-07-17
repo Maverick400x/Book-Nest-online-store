@@ -1,17 +1,48 @@
 import mongoose from "mongoose";
 
-// User Schema Definition
+// Define User Schema
 const userSchema = new mongoose.Schema({
-  username: { type: String, required: true, unique: true },
-  email:    { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  phone:    { type: String },     // Optional
-  address:  { type: String },     // Optional
-  otp: {
-    code:      { type: String },
-    expiresAt: { type: Date }
+  username: {
+    type: String,
+    required: [true, "Username is required."],
+    unique: true,
+    trim: true,
+    minlength: 3,
+    maxlength: 20,
+    match: [/^[a-zA-Z][a-zA-Z0-9_]{2,19}$/, "Invalid username format."]
+  },
+  email: {
+    type: String,
+    required: [true, "Email is required."],
+    unique: true,
+    lowercase: true,
+    trim: true,
+    match: [/^[a-zA-Z0-9._%+-]+@gmail\.com$/, "Only Gmail addresses are allowed."]
+  },
+  password: {
+    type: String,
+    required: [true, "Password is required."],
+    minlength: 6
+  },
+  phone: {
+    type: String,
+    match: [/^\d{10}$/, "Phone number must be 10 digits."],
+    default: ""
+  },
+  address: {
+    type: String,
+    maxlength: 250,
+    default: ""
+  },
+  resetToken: {
+    type: String
+  },
+  resetTokenExpiry: {
+    type: Date
   }
+}, {
+  timestamps: true // adds createdAt and updatedAt fields
 });
 
-// Create and export the User model
+// Export the User model
 export const User = mongoose.model("User", userSchema);
