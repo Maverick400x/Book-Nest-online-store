@@ -766,42 +766,301 @@ export let products = [
   image: "/src/books/pride-collector.jpg", // Ensure the image exists at this path
   description: "A beautiful collector’s edition of Jane Austen’s beloved romantic novel, bound in elegant hardcover."
 },
-  { id: 70, title: "To Kill a Mockingbird - Limited Run", author: "Harper Lee", price: 1199, limitedEdition: true, tag: "classic" },
+  {
+  id: 70,
+  title: "To Kill a Mockingbird - Limited Run",
+  author: "Harper Lee",
+  price: 1199,
+  limitedEdition: true,
+  tag: "classic",
+  image: "/src/books/mockingbird-limited.jpg", // Image path - ensure it's in your public folder
+  description: "A rare limited edition of Harper Lee’s Pulitzer Prize-winning masterpiece, capturing the heart of justice and morality in the Deep South."
+},
   // Tags are already added below:
-  { id: 71, title: "Hideo Kojima: The Creative Gene", author: "Hideo Kojima", price: 1299, hotSale: true },
-  { id: 72, title: "Sid Meier’s Memoir!", author: "Sid Meier", price: 1099, hotSale: true },
-  { id: 73, title: "The Art of Naughty Dog", author: "Naughty Dog Studios", price: 1499, hotSale: true },
-  { id: 74, title: "Miyamoto: The Man Behind Mario", author: "Jeff Ryan", price: 1399, hotSale: true },
-  { id: 75, title: "John Romero: Doom Guy", author: "John Romero", price: 1599, hotSale: true },
-  { id: 76, title: "Carmack & Romero: The Masters of FPS", author: "David Kushner", price: 1699, hotSale: true },
-  { id: 77, title: "Ken Levine: The Mind Behind Bioshock", author: "Geoff Keighley", price: 1499, hotSale: true },
-  { id: 78, title: "The Making of Final Fantasy", author: "Yoshitaka Amano", price: 1799, hotSale: true },
-  { id: 79, title: "The Legend of Zelda: Creating a Classic", author: "Nintendo", price: 1999, hotSale: true },
-  { id: 80, title: "The Last of Us: Official Art & Story", author: "Neil Druckmann", price: 1899, hotSale: true },
-  { id: 81, title: "Metro 2033", author: "Dmitry Glukhovsky", price: 499, tag: "metro" },
-  { id: 82, title: "Metro 2034", author: "Dmitry Glukhovsky", price: 520, tag: "metro" },
-  { id: 83, title: "Metro 2035", author: "Dmitry Glukhovsky", price: 540, tag: "metro" },
-  { id: 84, title: "Marvel Encyclopedia", author: "DK Publishing", price: 1599, tag: "marvel" },
-  { id: 85, title: "Infinity Gauntlet", author: "Jim Starlin", price: 999, tag: "marvel" },
-  { id: 86, title: "Civil War", author: "Mark Millar", price: 950, tag: "marvel" },
-  { id: 87, title: "Spider-Man: Blue", author: "Jeph Loeb", price: 899, tag: "marvel" },
-  { id: 88, title: "X-Men: Days of Future Past", author: "Chris Claremont", price: 920, tag: "marvel" },
-  { id: 89, title: "Batman: The Killing Joke", author: "Alan Moore", price: 899, tag: "dc" },
-  { id: 90, title: "Watchmen", author: "Alan Moore", price: 1099, tag: "dc" },
-  { id: 91, title: "Superman: Red Son", author: "Mark Millar", price: 940, tag: "dc" },
-  { id: 92, title: "Justice League: Origin", author: "Geoff Johns", price: 880, tag: "dc" },
-  { id: 93, title: "The Flash: Rebirth", author: "Geoff Johns", price: 860, tag: "dc" },
-  { id: 94, title: "Naruto Vol. 1", author: "Masashi Kishimoto", price: 399, tag: "manga" },
-  { id: 95, title: "One Piece Vol. 1", author: "Eiichiro Oda", price: 420, tag: "manga" },
-  { id: 96, title: "Attack on Titan Vol. 1", author: "Hajime Isayama", price: 430, tag: "manga" },
-  { id: 97, title: "Death Note Vol. 1", author: "Tsugumi Ohba", price: 440, tag: "manga" },
-  { id: 98, title: "Demon Slayer Vol. 1", author: "Koyoharu Gotouge", price: 460, tag: "manga" },
-  { id: 99, title: "My Hero Academia Vol. 1", author: "Kohei Horikoshi", price: 450, tag: "manga" },
-  { id: 100, title: "Tokyo Ghoul Vol. 1", author: "Sui Ishida", price: 470, tag: "manga" },
+  {
+  id: 71,
+  title: "Hideo Kojima: The Creative Gene",
+  author: "Hideo Kojima",
+  price: 1299,
+  hotSale: true,
+  tag: "biography",
+  image: "/src/books/creative-gene.jpg",
+  description: "A collection of essays from Hideo Kojima exploring the pop culture that shaped his creative vision, from video games to cinema."
+},
+  {
+  id: 72,
+  title: "Sid Meier’s Memoir!",
+  author: "Sid Meier",
+  price: 1099,
+  hotSale: true,
+  tag: "biography",
+  image: "/src/books/sid-meier-memoir.jpg",
+  description: "Legendary game designer Sid Meier shares his journey from coding classics like Civilization to shaping the modern gaming industry."
+},
+  {
+  id: 73,
+  title: "The Art of Naughty Dog",
+  author: "Naughty Dog Studios",
+  price: 1499,
+  hotSale: true,
+  tag: "art",
+  image: "/src/books/art-of-naughty-dog.jpg",
+  description: "A stunning visual journey through the creative evolution of one of the most iconic game studios in the industry."
+},
+{
+  id: 74,
+  title: "Miyamoto: The Man Behind Mario",
+  author: "Jeff Ryan",
+  price: 1399,
+  hotSale: true,
+  tag: "biography",
+  image: "/src/books/miyamoto-man-behind-mario.jpg",
+  description: "An inspiring look into the life and legacy of Shigeru Miyamoto, the legendary creator of Mario, Zelda, and more."
+},
+{
+  id: 75,
+  title: "John Romero: Doom Guy",
+  author: "John Romero",
+  price: 1599,
+  hotSale: true,
+  tag: "biography",
+  image: "/src/books/doom-guy-john-romero.jpg",
+  description: "The thrilling memoir of John Romero, co-creator of DOOM, sharing behind-the-scenes stories of the game that changed everything."
+},
+  {
+  id: 76,
+  title: "Carmack & Romero: The Masters of FPS",
+  author: "David Kushner",
+  price: 1699,
+  hotSale: true,
+  tag: "biography",
+  image: "/src/books/carmack-romero.jpg",
+  description: "A deep dive into the legendary partnership of John Carmack and John Romero, the creative forces behind DOOM and the rise of first-person shooters."
+},
+  {
+  id: 77,
+  title: "Ken Levine: The Mind In Revolt",
+  author: "Joe Fielder",
+  price: 1499,
+  hotSale: true,
+  tag: "biography",
+  image: "/src/books/ken-levine.jpg",
+  description: "An inside look at the creative genius behind the Bioshock series, exploring Ken Levine’s journey through storytelling and game design."
+},
+  {
+  id: 78,
+  title: "The Making of Final Fantasy",
+  author: "Yoshitaka Amano",
+  price: 1799,
+  hotSale: true,
+  tag: "gaming",
+  image: "/src/books/final-fantasy-making.jpg",
+  description: "Dive into the conceptual art, storytelling, and development journey behind the legendary Final Fantasy series by Yoshitaka Amano."
+},
+  {
+  id: 79,
+  title: "The Legend of Zelda: Creating a Classic",
+  author: "Nintendo",
+  price: 1999,
+  hotSale: true,
+  tag: "gaming",
+  image: "/src/books/zelda-creating-classic.jpg",
+  description: "Celebrate the history and art of one of Nintendo’s most iconic franchises. This book covers behind-the-scenes insights, concept art, and commentary from the creators of The Legend of Zelda series."
+},
+  {
+  id: 80,
+  title: "The Last of Us: Official Art & Story",
+  author: "Neil Druckmann",
+  price: 1899,
+  hotSale: true,
+  tag: "gaming",
+  image: "/src/books/the-last-of-us-art-story.jpg",
+  description: "Dive deep into the emotional and visual storytelling of The Last of Us. This collector's edition book features concept art, storyboards, and exclusive commentary from the creators."
+},
+{
+  id: 81,
+  title: "Metro 2033",
+  author: "Dmitry Glukhovsky",
+  price: 499,
+  tag: "metro",
+  image: "/src/books/metro-2033.jpg",
+  description: "In the ruins of post-apocalyptic Moscow, survivors take refuge in the subway tunnels. Metro 2033 is a gripping, atmospheric tale of survival and hope in the darkness."
+},
+{
+  id: 82,
+  title: "Metro 2034",
+  author: "Dmitry Glukhovsky",
+  price: 520,
+  tag: "metro",
+  image: "/src/books/metro-2034.jpg",
+  description: "A haunting sequel to Metro 2033, this novel follows a different journey through the tunnels of Moscow as survivors battle madness, scarcity, and the unknown horrors of the deep."
+},
+{
+  id: 83,
+  title: "Metro 2035",
+  author: "Dmitry Glukhovsky",
+  price: 540,
+  tag: "metro",
+  image: "/src/books/metro-2035.jpg",
+  description: "The gripping conclusion to the Metro trilogy. Artyom searches for signs of life beyond the Moscow Metro, confronting conspiracies, hope, and the haunting truth about the surface."
+},
+{
+  id: 84,
+  title: "Marvel Encyclopedia",
+  author: "DK Publishing",
+  price: 1599,
+  tag: "marvel",
+  image: "/src/books/marvel-encyclopedia.jpg",
+  description: "An authoritative and visually stunning guide to the Marvel Universe. Explore over 1,200 characters, story arcs, and the evolution of superheroes and villains across decades of comics."
+},
+  {
+  id: 85,
+  title: "Infinity Gauntlet",
+  author: "Jim Starlin",
+  price: 999,
+  tag: "marvel",
+  image: "/src/books/infinity-gauntlet.jpg",
+  description: "A cosmic epic where Thanos wields the Infinity Gauntlet, threatening the fate of the entire universe. This Marvel classic delivers a powerful tale of ambition, loss, and heroism."
+},
+  {
+  id: 86,
+  title: "Civil War",
+  author: "Mark Millar",
+  price: 950,
+  tag: "marvel",
+  image: "/src/books/civil-war.jpg",
+  description: "A monumental Marvel event that splits the superhero community in two—Captain America vs. Iron Man—as they clash over government oversight. A gripping story of loyalty, freedom, and conflict."
+},
+  {
+  id: 87,
+  title: "Spider-Man: Blue",
+  author: "Jeph Loeb",
+  price: 899,
+  tag: "marvel",
+  image: "/src/books/spiderman-blue.jpg",
+  description: "A heartfelt and nostalgic look at Peter Parker’s love for Gwen Stacy. 'Spider-Man: Blue' explores the emotional core of the wall-crawler in a beautifully told and illustrated story."
+},
+  {
+  id: 88,
+  title: "X-Men: Days of Future Past",
+  author: "Chris Claremont",
+  price: 920,
+  tag: "marvel",
+  image: "/src/books/xmen-days-of-future-past.jpg",
+  description: "A pivotal Marvel storyline that introduced dystopian futures and time travel into the X-Men universe. This gripping tale follows Kitty Pryde as she journeys through time to prevent a mutant apocalypse."
+},
+{
+  id: 89,
+  title: "Batman: The Killing Joke",
+  author: "Alan Moore",
+  price: 899,
+  tag: "dc",
+  image: "/src/books/batman-killing-joke.jpg",
+  description: "A critically acclaimed graphic novel that delves into the origin of the Joker and explores the psychological battle between him and Batman. Known for its dark themes and iconic artwork by Brian Bolland."
+},
+  {
+  id: 90,
+  title: "Watchmen",
+  author: "Alan Moore",
+  price: 1099,
+  tag: "dc",
+  image: "/src/books/watchmen.jpg",
+  description: "A groundbreaking graphic novel that deconstructs the concept of superheroes, presenting a dark, gritty alternate reality where masked vigilantes influence world events. Praised for its complex narrative and rich symbolism."
+},
+{
+  id: 91,
+  title: "Superman: Red Son",
+  author: "Mark Millar",
+  price: 940,
+  tag: "dc",
+  image: "/src/books/superman-red-son.jpg",
+  description: "An alternate universe story where Superman lands in the Soviet Union instead of Kansas, reimagining the Man of Steel as a symbol of communism. A thought-provoking exploration of power, ideology, and identity."
+},
+{
+  id: 92,
+  title: "Justice League: Origin",
+  author: "Geoff Johns",
+  price: 880,
+  tag: "dc",
+  image: "/src/books/justice-league-origin.jpg",
+  description: "The iconic reboot that brings together Batman, Superman, Wonder Woman, and others to face a global threat. A thrilling origin tale that kickstarts the New 52 era with explosive action and dynamic storytelling."
+},
+{
+  id: 93,
+  title: "The Flash: Rebirth",
+  author: "Geoff Johns",
+  price: 860,
+  tag: "dc",
+  image: "/src/books/flash-rebirth.jpg",
+  description: "Barry Allen returns from the Speed Force to reclaim his mantle as the Fastest Man Alive. A pivotal story that redefines the legacy of the Flash with breathtaking speed and emotional depth."
+},
+{
+  id: 94,
+  title: "Naruto Vol. 1",
+  author: "Masashi Kishimoto",
+  price: 399,
+  tag: "manga",
+  image: "/src/books/naruto-vol1.jpg",
+  description: "Meet Naruto Uzumaki, a young ninja with a big dream—to become the strongest ninja and earn the title of Hokage. Packed with action, humor, and heart, this first volume kicks off one of the most beloved manga adventures of all time."
+},
+{
+  id: 95,
+  title: "One Piece Vol. 1",
+  author: "Eiichiro Oda",
+  price: 420,
+  tag: "manga",
+  image: "/src/books/one-piece-vol1.jpg",
+  description: "Set sail with Monkey D. Luffy as he begins his journey to become King of the Pirates. This first volume introduces the Straw Hat Pirates and launches the epic, high-seas adventure that’s captivated millions worldwide."
+},
+  {
+  id: 96,
+  title: "Attack on Titan Vol. 1",
+  author: "Hajime Isayama",
+  price: 430,
+  tag: "manga",
+  image: "/src/books/aot-vol1.jpg",
+  description: "In a world devastated by man-eating Titans, humanity clings to life behind enormous walls. This gripping first volume introduces Eren Yeager and his fight for survival—and revenge—in a brutal, dystopian world."
+},
+  {
+  id: 97,
+  title: "Death Note Vol. 1",
+  author: "Tsugumi Ohba",
+  price: 440,
+  tag: "manga",
+  image: "/src/books/death-note-vol1.jpg",
+  description: "When high school student Light Yagami finds a notebook with the power to kill anyone whose name is written in it, he decides to create a world free of criminals. But justice comes at a cost in this gripping psychological thriller."
+},
+{
+  id: 98,
+  title: "Demon Slayer Vol. 1",
+  author: "Koyoharu Gotouge",
+  price: 460,
+  tag: "manga",
+  image: "/src/books/demon-slayer-vol1.jpg",
+  description: "Tanjiro Kamado’s peaceful life is shattered when his family is slaughtered by demons. With his sister turned into one of them, Tanjiro sets out on a perilous journey to become a Demon Slayer and find a cure for her."
+},
+  {
+  id: 99,
+  title: "My Hero Academia Vol. 1",
+  author: "Kohei Horikoshi",
+  price: 450,
+  tag: "manga",
+  image: "/src/books/my-hero-academia-vol1.jpg",
+  description: "In a world where superpowers—known as 'Quirks'—are the norm, Izuku Midoriya is one of the few born powerless. But after a chance encounter with the legendary hero All Might, he begins his journey to become the greatest hero of all time."
+},
+{
+  id: 100,
+  title: "Tokyo Ghoul Vol. 1",
+  author: "Sui Ishida",
+  price: 470,
+  tag: "manga",
+  image: "/src/books/tokyo-ghoul-vol1.jpg",
+  description: "In modern-day Tokyo, society lives in fear of Ghouls—mysterious creatures who look exactly like humans yet hunger for their flesh. When shy college student Ken Kaneki meets a girl who’s a ghoul, he gets pulled into their dark and brutal world."
+},
   {
   id: 101,
   title: "Demo Book for Testing",
-  author: "John Doe",
+  author: "NOT FOR SALE",
   price: 2,
   tag: "demo",
   limitedEdition: false,
