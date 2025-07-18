@@ -22,12 +22,12 @@ body {
 .left-panel {
   flex: 1;
   background-color: rgba(0, 0, 0, 0.7);
+  -webkit-backdrop-filter: blur(4px); /* Safari Support */
   backdrop-filter: blur(4px);
   color: #fff;
   min-width: 320px;
   animation: slideInLeft 1s ease-out;
 }
-
 /* Right Panel */
 .right-panel {
   flex: 1;
@@ -62,6 +62,7 @@ body {
 /* Form Container */
 .form-container {
   background-color: rgba(255, 255, 255, 0.85);
+  -webkit-backdrop-filter: blur(10px); /* Safari Support */
   backdrop-filter: blur(10px);
   border-radius: 16px;
   max-width: 420px;
