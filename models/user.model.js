@@ -1,55 +1,72 @@
 import mongoose from "mongoose";
 
-// Define User Schema
 const userSchema = new mongoose.Schema({
   fullName: {
     type: String,
     required: [true, "Full name is required."],
     trim: true,
-    minlength: 3,
-    maxlength: 50
+    minlength: [3, "Full name must be at least 3 characters long."]
   },
+
   username: {
     type: String,
     required: [true, "Username is required."],
     unique: true,
     trim: true,
-    minlength: 3,
-    maxlength: 20,
-    match: [/^[a-zA-Z][a-zA-Z0-9_]{2,19}$/, "Invalid username format."]
+    minlength: [3, "Username must be at least 3 characters long."]
   },
+
   email: {
     type: String,
     required: [true, "Email is required."],
     unique: true,
     lowercase: true,
     trim: true,
-    match: [/^[a-zA-Z0-9._%+-]+@gmail\.com$/, "Only Gmail addresses are allowed."]
+    validate: {
+      validator: function (v) {
+        return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,})+$/.test(v);
+      },
+      message: "Enter a valid email address."
+    }
   },
-  password: {
-    type: String,
-    required: [true, "Password is required."],
-    minlength: 6
-  },
+
   phone: {
     type: String,
-    match: [/^\d{10}$/, "Phone number must be 10 digits."],
-    default: ""
+    required: false, // ✅ Make optional
+    trim: true,
+    validate: {
+      validator: function (v) {
+        return !v || /^\d{10}$/.test(v); // Allow blank or valid 10-digit
+      },
+      message: "Enter a valid 10-digit phone number."
+    }
   },
+
   address: {
     type: String,
-    maxlength: 250,
-    default: ""
+    required: false, // ✅ Make optional
+    trim: true,
+    maxlength: [200, "Address cannot exceed 200 characters."]
   },
-  resetToken: {
+
+  password: {
+    type: String,
+    required: false, // ✅ Make optional for OTP flow
+    trim: true
+  },
+
+  otp: {
     type: String
   },
-  resetTokenExpiry: {
+
+  otpExpiry: {
     type: Date
+  },
+
+  createdAt: {
+    type: Date,
+    default: Date.now
   }
-}, {
-  timestamps: true // adds createdAt and updatedAt fields
 });
 
-// Export the User model
 export const User = mongoose.model("User", userSchema);

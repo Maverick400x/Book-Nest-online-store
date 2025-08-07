@@ -56,7 +56,7 @@
 
   <!-- Right Register Form -->
   <div class="right-panel d-flex align-items-center justify-content-center flex-fill bg-light">
-    <div class="form-container p-4 shadow-lg rounded">
+    <div class="form-container p-4 shadow-lg rounded bg-white">
 
       <% if (typeof error !== "undefined" && error) { %>
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -65,9 +65,22 @@
         </div>
       <% } %>
 
+      <% if (typeof success !== "undefined" && success) { %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+          <%= success %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      <% } %>
+
       <h2 class="text-center mb-4">Create Account</h2>
 
       <form id="registerForm" action="/users/register" method="POST" novalidate>
+        <!-- Full Name -->
+        <div class="mb-3 input-group">
+          <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+          <input type="text" name="fullName" id="fullName" class="form-control" placeholder="Full Name" required />
+        </div>
+
         <!-- Username -->
         <div class="mb-3 input-group">
           <span class="input-group-text"><i class="bi bi-person"></i></span>
@@ -78,23 +91,6 @@
         <div class="mb-3 input-group">
           <span class="input-group-text"><i class="bi bi-envelope"></i></span>
           <input type="email" name="email" id="email" class="form-control" placeholder="Email address" required />
-        </div>
-
-        <!-- Password with Toggle -->
-        <div class="mb-2 input-group">
-          <span class="input-group-text"><i class="bi bi-lock"></i></span>
-          <input type="password" name="password" id="password" class="form-control" placeholder="Password" required />
-          <span class="input-group-text bg-white border-start-0">
-            <i class="bi bi-eye-slash" id="togglePassword" style="cursor: pointer;"></i>
-          </span>
-        </div>
-
-        <!-- Strength Meter -->
-        <div class="mb-3">
-          <div class="progress" style="height: 5px;">
-            <div id="strength-bar" class="progress-bar" role="progressbar"></div>
-          </div>
-          <small id="strength-text" class="text-muted">Enter password to check strength</small>
         </div>
 
         <button type="submit" class="btn btn-success w-100">Register</button>
@@ -126,57 +122,24 @@
     toast.show();
   };
 
-  // Password strength logic
-  const passwordInput = document.getElementById("password");
-  const strengthBar = document.getElementById("strength-bar");
-  const strengthText = document.getElementById("strength-text");
-
-  passwordInput.addEventListener("input", () => {
-    const val = passwordInput.value;
-    let strength = 0;
-    if (val.length >= 6) strength += 1;
-    if (/[A-Z]/.test(val)) strength += 1;
-    if (/[0-9]/.test(val)) strength += 1;
-    if (/[^A-Za-z0-9]/.test(val)) strength += 1;
-
-    strengthBar.className = "progress-bar";
-    strengthBar.style.width = `${strength * 25}%`;
-
-    const strengthLevels = ["", "Weak", "Medium", "Strong", "Very Strong"];
-    const strengthClasses = ["", "bg-danger", "bg-warning", "bg-info", "bg-success"];
-    const textClasses = ["text-muted", "text-danger", "text-warning", "text-info", "text-success"];
-
-    strengthBar.classList.add(strengthClasses[strength]);
-    strengthText.textContent = strengthLevels[strength];
-    strengthText.className = textClasses[strength];
-  });
-
-  // Password visibility toggle
-  document.getElementById("togglePassword").addEventListener("click", function () {
-    const isVisible = passwordInput.type === "text";
-    passwordInput.type = isVisible ? "password" : "text";
-    this.classList.toggle("bi-eye");
-    this.classList.toggle("bi-eye-slash");
-  });
-
   // Form validation
   document.getElementById("registerForm").addEventListener("submit", function (e) {
+    const fullName = document.getElementById("fullName").value.trim();
     const username = document.getElementById("username").value.trim();
     const email = document.getElementById("email").value.trim();
-    const password = passwordInput.value.trim();
 
     const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_]{2,19}$/;
     const isGmail = email.endsWith("@gmail.com");
 
-    if (!usernameRegex.test(username)) {
+    if (fullName.length < 3) {
+      e.preventDefault();
+      showToast("Full name must be at least 3 characters.");
+    } else if (!usernameRegex.test(username)) {
       e.preventDefault();
       showToast("Username must start with a letter and be 3–20 characters.");
     } else if (!isGmail) {
       e.preventDefault();
       showToast("Only Gmail addresses are allowed.");
-    } else if (password.length < 6) {
-      e.preventDefault();
-      showToast("Password must be at least 6 characters.");
     }
   });
 </script>

@@ -1,232 +1,188 @@
-import bcrypt from "bcryptjs";
 import { User } from "../models/user.model.js";
-import { Order } from "../models/order.model.js";
 import { sendMail } from "../utils/mailer.js";
 
-// ======================= AUTH =======================
+// =================== RENDER PAGES ===================
 
-// Render Login Page
 export const renderLoginPage = (req, res) => {
-  const error = req.session.error;
+  const { error, success } = req.session;
   req.session.error = null;
-  res.render("login", { title: "Login", error });
+  req.session.success = null;
+  res.render("login", { title: "Login", error, success });
 };
 
-// Render Register Page
 export const renderRegisterPage = (req, res) => {
-  const error = req.session.error;
+  const { error, success } = req.session;
   req.session.error = null;
-  res.render("register", { title: "Register", error });
+  req.session.success = null;
+  res.render("register", { title: "Register", error, success });
 };
 
-// Login User
-export const loginUser = async (req, res) => {
-  const { identifier, password } = req.body;
-  const timestamp = new Date().toLocaleString();
+export const renderOtpPage = (req, res) => {
+  const { error, success, email } = req.session;
+  req.session.error = null;
+  req.session.success = null;
 
-  try {
-    if (!identifier || !password) {
-      req.session.error = "❌ Please enter both username/email and password.";
-      return res.redirect("/users/login");
-    }
-
-    const user = await User.findOne({
-      $or: [{ username: identifier }, { email: identifier }]
-    });
-
-    if (!user) {
-      req.session.error = "❌ Account not found. Please register.";
-      return res.redirect("/users/login");
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      req.session.error = "❌ Incorrect password.";
-      return res.redirect("/users/login");
-    }
-
-    // Set session
-    req.session.user = {
-      id: user._id,
-      username: user.username,
-      email: user.email,
-      fullName: user.fullName,
-      phone: user.phone,
-      address: user.address
-    };
-
-    // Send login email
-    await sendMail(
-      user.email,
-      "📥 Login Notification",
-      `Hello ${user.username},\n\nYou logged in on ${timestamp}.`
-    );
-
-    res.redirect("/");
-  } catch (err) {
-    req.session.error = "❌ Login failed: " + err.message;
-    res.redirect("/users/login");
-  }
+  if (!email) return res.redirect("/users/login");
+  res.render("verify-otp", { title: "Verify OTP", email, error, success });
 };
 
-// Register User
+// =================== REGISTER USER (with OTP) ===================
+
 export const registerUser = async (req, res) => {
-  const { fullName, username, email, password } = req.body;
+  const { fullName, username, email } = req.body;
   const timestamp = new Date().toLocaleString();
-  const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_]{2,19}$/;
-
-  if (!fullName || fullName.trim().length < 3) {
-    req.session.error = "❌ Full name must be at least 3 characters.";
-    return res.redirect("/users/register");
-  }
-
-  if (!usernameRegex.test(username)) {
-    req.session.error = "❌ Username must start with a letter and be 3–20 characters.";
-    return res.redirect("/users/register");
-  }
-
-  if (!email.endsWith("@gmail.com")) {
-    req.session.error = "❌ Only Gmail addresses are allowed.";
-    return res.redirect("/users/register");
-  }
-
-  if (!password || password.length < 6) {
-    req.session.error = "❌ Password must be at least 6 characters.";
-    return res.redirect("/users/register");
-  }
 
   try {
-    const existingUser = await User.findOne({
-      $or: [{ username }, { email }]
-    });
-
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
-      req.session.error = "❌ Username or Email already exists.";
+      req.session.error = "❌ Email already registered.";
       return res.redirect("/users/register");
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ fullName, username, email, password: hashedPassword });
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpiry = Date.now() + 10 * 60 * 1000; // 10 mins
+
+    const newUser = new User({
+      fullName,
+      username,
+      email,
+      otp,
+      otpExpiry,
+      isVerified: false
+    });
 
     await newUser.save();
 
     await sendMail(
       email,
-      "🎉 Welcome to BookNest!",
-      `Hello ${username},\n\nThanks for registering on ${timestamp}. Enjoy shopping with BookNest!`
+      "📩 Verify Your BookNest Account",
+      `Hello ${fullName},\n\nThanks for registering on BookNest!\nPlease verify your account using the OTP below:\n🔐 OTP: **${otp}**\n\nThis OTP is valid for 10 minutes.\n\nIf you didn’t register, ignore this email.\n\nHappy reading,\nTeam BookNest`
     );
 
-    res.redirect("/users/login");
+    req.session.success = "✅ Registration successful! OTP sent to your email.";
+    req.session.email = email;
+    return res.redirect("/users/verify-otp");
   } catch (err) {
-    req.session.error = "❌ Registration failed: " + err.message;
+    console.error("Register error:", err);
+    req.session.error = "❌ Registration failed.";
     res.redirect("/users/register");
   }
 };
 
-// ======================= ACCOUNT =======================
+// =================== VERIFY OTP (for registration) ===================
 
-// Render Account Page
-export const renderAccountPage = async (req, res) => {
-  if (!req.session.user) return res.redirect("/users/login");
+export const verifyOtpLogin = async (req, res) => {
+  const { otp } = req.body;
+  const { email } = req.session;
+  const timestamp = new Date().toLocaleString();
 
-  try {
-    const dbUser = await User.findById(req.session.user.id);
-    if (!dbUser) return res.redirect("/users/login");
-
-    const orders = await Order.find({ userId: dbUser._id }).sort({ _id: -1 });
-    const latestOrder = orders[0];
-
-    const enrichedUser = {
-      id: dbUser._id,
-      fullName: dbUser.fullName || "Not provided",
-      username: dbUser.username,
-      email: dbUser.email,
-      address: dbUser.address || latestOrder?.address || "Not provided",
-      phone: dbUser.phone || latestOrder?.phone || "Not provided",
-      totalOrders: orders.length,
-      allBooks: orders.flatMap(order => order.items.map(item => item.title))
-    };
-
-    req.session.user = enrichedUser;
-
-    res.render("account", { user: enrichedUser });
-  } catch (err) {
-    res.status(500).send("❌ Failed to load account: " + err.message);
-  }
-};
-
-// ======================= PROFILE UPDATE =======================
-
-// Update Contact Info (AJAX)
-export const updateContactInfo = async (req, res) => {
-  const { fullName, username, phone, address } = req.body;
-  const sessionUser = req.session.user;
-
-  if (!sessionUser) {
-    return res.status(401).json({ message: "❌ Unauthorized. Please log in." });
-  }
-
-  const trimmedFullName = fullName?.trim();
-  const trimmedUsername = username?.trim();
-
-  if (!trimmedFullName || trimmedFullName.length < 3 || trimmedFullName.length > 50) {
-    return res.status(400).json({ message: "❌ Full name must be 3–50 characters." });
-  }
-
-  if (!trimmedUsername || trimmedUsername.length > 20) {
-    return res.status(400).json({ message: "❌ Username must be 1–20 characters." });
-  }
-
-  const phoneRegex = /^\d{10}$/;
-  if (!phoneRegex.test(phone)) {
-    return res.status(400).json({ message: "❌ Phone number must be exactly 10 digits." });
+  if (!email || !otp) {
+    req.session.error = "❌ Missing email or OTP.";
+    return res.redirect("/users/verify-otp");
   }
 
   try {
-    if (trimmedUsername !== sessionUser.username) {
-      const existing = await User.findOne({ username: trimmedUsername });
-      if (existing) {
-        return res.status(400).json({ message: "❌ Username is already taken." });
-      }
+    const user = await User.findOne({ email });
+
+    if (!user || user.otp !== otp || user.otpExpiry < Date.now()) {
+      req.session.error = "❌ Invalid or expired OTP.";
+      return res.redirect("/users/verify-otp");
     }
 
-    const user = await User.findById(sessionUser.id);
-    if (!user) {
-      return res.status(404).json({ message: "❌ User not found." });
-    }
-
-    user.fullName = trimmedFullName;
-    user.username = trimmedUsername;
-    user.phone = phone;
-    user.address = address;
+    // Mark verified
+    user.isVerified = true;
+    user.otp = undefined;
+    user.otpExpiry = undefined;
     await user.save();
 
-    // Update session
-    req.session.user.fullName = trimmedFullName;
-    req.session.user.username = trimmedUsername;
-    req.session.user.phone = phone;
-    req.session.user.address = address;
+    req.session.user = {
+      id: user._id,
+      fullName: user.fullName,
+      email: user.email
+    };
 
-    return res.status(200).json({ message: "✅ Info updated successfully!" });
+    await sendMail(
+      user.email,
+      "✅ Account Verified",
+      `Hi ${user.fullName},\n\nYour BookNest account has been successfully verified and Logged In.\n\n📅 Verified on: ${timestamp}\n\nEnjoy your reading journey!\n— Team BookNest`
+    );
+
+    delete req.session.email;
+    req.session.success = "🎉 Account verified and logged in!";
+    res.redirect("/users/account");
   } catch (err) {
-    return res.status(500).json({ message: "❌ Update failed: " + err.message });
+    console.error("OTP verify error:", err);
+    req.session.error = "❌ Verification failed.";
+    res.redirect("/users/verify-otp");
   }
 };
 
-// ======================= LOGOUT =======================
+// =================== SEND OTP FOR LOGIN ===================
 
-// Logout User
+export const sendOtpForLogin = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      req.session.error = "❌ User not found.";
+      return res.redirect("/users/login");
+    }
+
+    // if (!user.isVerified) {
+    //   req.session.error = "⚠️ Please verify your account first via OTP.";
+    //   return res.redirect("/users/login");
+    // }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpiry = Date.now() + 5 * 60 * 1000;
+
+    user.otp = otp;
+    user.otpExpiry = otpExpiry;
+    await user.save();
+
+    req.session.email = email;
+
+    await sendMail(
+      email,
+      "🔐 Your OTP for Login",
+      `Hello ${user.fullName},\n\nPlease use the following One-Time Password (OTP) to log in:\n\n✅ OTP: ${otp}\n\n⏰ OTP is valid for 5 minutes.\n\nIf this wasn't you, please ignore.\n\n— BookNest Team`
+    );
+
+    req.session.success = "📩 OTP sent to your email.";
+    res.redirect("/users/verify-otp");
+  } catch (err) {
+    console.error("Send OTP error:", err);
+    req.session.error = "❌ Failed to send OTP.";
+    res.redirect("/users/login");
+  }
+};
+
+// =================== LOGOUT ===================
+
 export const logoutUser = async (req, res) => {
   const user = req.session.user;
   const timestamp = new Date().toLocaleString();
 
-  if (user) {
-    await sendMail(
-      user.email,
-      "📤 Logout Alert",
-      `Hello ${user.username},\n\nYou logged out on ${timestamp}.`
-    );
-  }
+  try {
+    if (user) {
+      await sendMail(
+        user.email,
+        "📤 Logout Alert",
+        `Hello ${user.fullName},\n\nYou have successfully logged out of your BookNest account.\n\n📅 ${timestamp}\n\nIf this wasn’t you, contact support.\n\n— BookNest Team`
+      );
+    }
 
-  req.session.destroy(() => res.redirect("/"));
+    req.session.destroy((err) => {
+      if (err) {
+        console.error("Logout error:", err);
+        return res.redirect("/users/account");
+      }
+      res.clearCookie("connect.sid");
+      res.redirect("/users/login");
+    });
+  } catch (err) {
+    console.error("Logout exception:", err);
+    res.redirect("/users/account");
+  }
 };

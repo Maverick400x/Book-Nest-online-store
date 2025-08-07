@@ -1,40 +1,66 @@
 import express from "express";
+
+// Auth controller methods (OTP only)
 import {
-  loginUser,
+  sendOtpForLogin,
+  verifyOtpLogin,
   logoutUser,
   registerUser,
   renderLoginPage,
   renderRegisterPage,
-  renderAccountPage,
-  updateContactInfo
+  renderOtpPage
 } from "../controllers/user.controller.js";
 
-import {
-  renderForgotPasswordPage,
-  renderResetPasswordPage,
-  sendResetLink,
-  resetPassword
-} from "../controllers/password.controller.js"; // assumed you’re adding this controller
+// Account page rendering
+import { renderAccountPage } from "../controllers/account.controller.js";
+
+// Profile update only (delete removed)
+import { updateContactInfo } from "../controllers/profile.controller.js";
+
+// Auth middleware
+import { authMiddleware } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
-// 📄 Auth Pages
+// =====================================================
+// 📄 AUTH PAGES
+// =====================================================
+
+// Render login page
 router.get("/login", renderLoginPage);
+
+// Render register page
 router.get("/register", renderRegisterPage);
 
-// 🔐 Auth Actions
-router.post("/login", loginUser);
+// Render OTP verification page
+router.get("/verify-otp", renderOtpPage);
+
+// =====================================================
+// 🔐 OTP AUTH ACTIONS
+// =====================================================
+
+// Step 1: Send OTP to user's email or phone
+router.post("/send-otp", sendOtpForLogin);
+
+// Step 2: Verify the OTP entered by the user
+router.post("/verify-otp", verifyOtpLogin);
+
+// Register new user
 router.post("/register", registerUser);
+
+// Logout
 router.get("/logout", logoutUser);
 
-// 👤 User Dashboard & Profile
-router.get("/account", renderAccountPage);
-router.post("/update-info", updateContactInfo);
+// =====================================================
+// 👤 ACCOUNT & PROFILE
+// =====================================================
 
-// 🔑 Password Reset
-router.get("/forgot-password", renderForgotPasswordPage);
-router.post("/forgot-password", sendResetLink);
-router.get("/reset-password/:token", renderResetPasswordPage);
-router.post("/reset-password/:token", resetPassword);
+// Account dashboard page (protected)
+router.get("/account", authMiddleware, renderAccountPage);
+
+// Profile update (protected)
+router.post("/profile/update", authMiddleware, updateContactInfo);
+
+// ✅ Delete account route has been removed
 
 export default router;
