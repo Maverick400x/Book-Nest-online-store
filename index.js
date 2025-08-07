@@ -13,7 +13,8 @@ import cartRoutes from "./routes/cart.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import orderRoutes from "./routes/order.routes.js";
 import contactRoutes from "./routes/contact.routes.js";
-import razorpayRoutes from "./routes/razorpay.routes.js"; // ✅ Razorpay route
+// ❌ Razorpay removed
+// import razorpayRoutes from "./routes/razorpay.routes.js";
 
 import { loggerMiddleware } from "./middlewares/logger.middleware.js";
 import { products } from "./models/product.model.js";
@@ -23,7 +24,7 @@ const app = express();
 
 // Middlewares
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json()); // ✅ Add this for Razorpay JSON requests
+app.use(bodyParser.json()); // JSON body parsing
 app.use(express.static("public"));
 
 app.use(
@@ -46,7 +47,9 @@ app.use("/cart", cartRoutes);
 app.use("/users", userRoutes);
 app.use("/orders", orderRoutes);
 app.use("/contact", contactRoutes);
-app.use("/api/razorpay", razorpayRoutes); // ✅ Razorpay API route
+// ❌ Razorpay route removed
+// app.use("/api/razorpay", razorpayRoutes);
+
 // Custom Routes
 app.get("/discounts", (req, res) => {
   res.render("discounts", { user: req.session.user });

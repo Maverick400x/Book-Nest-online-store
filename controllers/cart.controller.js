@@ -1,6 +1,5 @@
 import { cart } from "../models/cart.model.js";
 import { products } from "../models/product.model.js";
-import { RazorpayOrder } from "../models/razorpay.model.js";
 
 // Add product to cart
 export const addToCart = (req, res) => {
@@ -17,31 +16,15 @@ export const addToCart = (req, res) => {
   res.redirect("/cart");
 };
 
-// Get the cart page with optional shipping info
-export const getCart = async (req, res) => {
+// Get the cart page (without Razorpay shipping info)
+export const getCart = (req, res) => {
   const user = req.session.user;
-  let shippingInfo = {};
-
-  if (user && user._id) {
-    try {
-      const lastOrder = await RazorpayOrder.findOne({ userId: user._id }).sort({ createdAt: -1 });
-
-      if (lastOrder) {
-        shippingInfo = {
-          address: lastOrder.address,
-          phone: lastOrder.phone
-        };
-      }
-    } catch (error) {
-      console.error("Error fetching shipping info:", error);
-    }
-  }
 
   res.render("cart", {
     title: "Shopping Cart",
     cart,
     user,
-    shippingInfo
+    shippingInfo: {} // Now empty by default, or you can remove it entirely from the view if unused
   });
 };
 
