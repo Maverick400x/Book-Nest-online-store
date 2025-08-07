@@ -109,7 +109,7 @@ export const verifyOtpLogin = async (req, res) => {
 
     delete req.session.email;
     req.session.success = "🎉 Account verified and logged in!";
-    res.redirect("/"); //home page redirected
+    res.redirect("/"); //home page
   } catch (err) {
     console.error("OTP verify error:", err);
     req.session.error = "❌ Verification failed.";
