@@ -56,7 +56,7 @@ export const registerUser = async (req, res) => {
     await sendMail(
       email,
       "📩 Verify Your BookNest Account",
-      `Hello ${fullName},\n\nThanks for registering on BookNest!\nPlease verify your account using the OTP below:\n🔐 OTP: **${otp}**\n\nThis OTP is valid for 10 minutes.\n\nIf you didn’t register, ignore this email.\n\nHappy reading,\nTeam BookNest`
+      `Hello ${fullName},\n\nThanks for registering on BookNest!\nPlease verify your account using the OTP below:\n🔐 OTP: ${otp}\n\nThis OTP is valid for 10 minutes.\n\nIf you didn’t register, ignore this email.\n\nHappy reading,\nTeam BookNest`
     );
 
     req.session.success = "✅ Registration successful! OTP sent to your email.";
@@ -69,7 +69,7 @@ export const registerUser = async (req, res) => {
   }
 };
 
-// =================== VERIFY OTP (for registration) ===================
+// =================== VERIFY OTP (for registration/login) ===================
 
 export const verifyOtpLogin = async (req, res) => {
   const { otp } = req.body;
@@ -109,7 +109,7 @@ export const verifyOtpLogin = async (req, res) => {
 
     delete req.session.email;
     req.session.success = "🎉 Account verified and logged in!";
-    res.redirect("/"); //home page
+    res.redirect("/"); // home page
   } catch (err) {
     console.error("OTP verify error:", err);
     req.session.error = "❌ Verification failed.";
@@ -128,11 +128,6 @@ export const sendOtpForLogin = async (req, res) => {
       req.session.error = "❌ User not found.";
       return res.redirect("/users/login");
     }
-
-    // if (!user.isVerified) {
-    //   req.session.error = "⚠️ Please verify your account first via OTP.";
-    //   return res.redirect("/users/login");
-    // }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const otpExpiry = Date.now() + 5 * 60 * 1000;
@@ -155,6 +150,45 @@ export const sendOtpForLogin = async (req, res) => {
     console.error("Send OTP error:", err);
     req.session.error = "❌ Failed to send OTP.";
     res.redirect("/users/login");
+  }
+};
+
+// =================== RESEND OTP (common for both flows) ===================
+
+export const resendOtp = async (req, res) => {
+  const { email } = req.session;
+
+  if (!email) {
+    req.session.error = "⚠️ Session expired. Please login/register again.";
+    return res.redirect("/users/login");
+  }
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      req.session.error = "❌ User not found.";
+      return res.redirect("/users/login");
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpiry = Date.now() + 10 * 60 * 1000; // 10 mins
+
+    user.otp = otp;
+    user.otpExpiry = otpExpiry;
+    await user.save();
+
+    await sendMail(
+      email,
+      "📩 Resend OTP - BookNest",
+      `Hello ${user.fullName},\n\nHere is your new OTP:\n\n🔐 OTP: ${otp}\n\n⏰ Valid for 10 minutes.\n\nIf you didn’t request this, ignore this email.\n\n— Team BookNest`
+    );
+
+    req.session.success = "📩 A new OTP has been sent to your email.";
+    res.redirect("/users/verify-otp");
+  } catch (err) {
+    console.error("Resend OTP error:", err);
+    req.session.error = "❌ Failed to resend OTP.";
+    res.redirect("/users/verify-otp");
   }
 };
 
