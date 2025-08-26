@@ -78,6 +78,7 @@
 
       <h2 class="text-center mb-4">Enter OTP</h2>
 
+      <!-- OTP Verification Form -->
       <form id="otpForm" action="/users/verify-otp" method="POST" novalidate>
         <input type="hidden" name="email" value="<%= email %>" />
         <input type="hidden" name="otp" id="otp" />
@@ -91,10 +92,15 @@
         <button type="submit" class="btn btn-success w-100">Verify OTP</button>
       </form>
 
-      <p class="text-center mt-3">
-        Didn't get the OTP? <a href="/users/send-otp" class="text-decoration-none">Resend</a>
-      </p>
+      <!-- Resend OTP (POST form instead of link) -->
+      <form action="/users/send-otp" method="POST" class="text-center mt-3">
+        <input type="hidden" name="email" value="<%= email %>" />
+        <button type="submit" class="btn btn-link text-decoration-none p-0">
+          Didn't get the OTP? Resend
+        </button>
+      </form>
 
+      <!-- Back to login -->
       <div class="text-center">
         <a href="/users/login" class="btn btn-sm btn-outline-secondary mt-2">
           <i class="bi bi-arrow-left"></i> Back To Login</a>
