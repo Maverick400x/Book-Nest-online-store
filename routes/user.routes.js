@@ -1,6 +1,7 @@
+// routes/user.routes.js
 import express from "express";
 
-// Auth controller methods (OTP only)
+// Controllers
 import {
   sendOtpForLogin,
   verifyOtpLogin,
@@ -11,56 +12,45 @@ import {
   renderOtpPage
 } from "../controllers/user.controller.js";
 
-// Account page rendering
 import { renderAccountPage } from "../controllers/account.controller.js";
-
-// Profile update only (delete removed)
 import { updateContactInfo } from "../controllers/profile.controller.js";
 
-// Auth middleware
+// Middleware
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
-// =====================================================
-// 📄 AUTH PAGES
-// =====================================================
+// ===================== AUTH PAGES =====================
 
-// Render login page
+// Login page
 router.get("/login", renderLoginPage);
 
-// Render register page
+// Register page
 router.get("/register", renderRegisterPage);
 
-// Render OTP verification page
+// OTP verification page
 router.get("/verify-otp", renderOtpPage);
 
-// =====================================================
-// 🔐 OTP AUTH ACTIONS
-// =====================================================
+// ===================== AUTH ACTIONS =====================
 
-// Step 1: Send OTP to user's email or phone
+// Send OTP
 router.post("/send-otp", sendOtpForLogin);
 
-// Step 2: Verify the OTP entered by the user
+// Verify OTP
 router.post("/verify-otp", verifyOtpLogin);
 
-// Register new user
+// Register
 router.post("/register", registerUser);
 
 // Logout
 router.get("/logout", logoutUser);
 
-// =====================================================
-// 👤 ACCOUNT & PROFILE
-// =====================================================
+// ===================== ACCOUNT & PROFILE =====================
 
-// Account dashboard page (protected)
+// Account page (protected)
 router.get("/account", authMiddleware, renderAccountPage);
 
-// Profile update (protected)
+// Update profile (protected)
 router.post("/profile/update", authMiddleware, updateContactInfo);
-
-// ✅ Delete account route has been removed
 
 export default router;
