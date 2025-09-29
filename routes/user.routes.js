@@ -1,15 +1,16 @@
-// routes/user.routes.js
 import express from "express";
 
 // Controllers
 import {
-  sendOtpForLogin,
-  verifyOtpLogin,
-  logoutUser,
   registerUser,
+  loginUser,
+  logoutUser,
+  forgotPassword,
+  resetPassword,
   renderLoginPage,
   renderRegisterPage,
-  renderOtpPage
+  renderForgotPasswordPage,
+  renderResetPasswordPage,
 } from "../controllers/user.controller.js";
 
 import { renderAccountPage } from "../controllers/account.controller.js";
@@ -28,22 +29,28 @@ router.get("/login", renderLoginPage);
 // Register page
 router.get("/register", renderRegisterPage);
 
-// OTP verification page
-router.get("/verify-otp", renderOtpPage);
+// Forgot password page
+router.get("/forgot-password", renderForgotPasswordPage);
+
+// Reset password page (with token)
+router.get("/reset-password/:token", renderResetPasswordPage);
 
 // ===================== AUTH ACTIONS =====================
-
-// Send OTP
-router.post("/send-otp", sendOtpForLogin);
-
-// Verify OTP
-router.post("/verify-otp", verifyOtpLogin);
 
 // Register
 router.post("/register", registerUser);
 
+// Login
+router.post("/login", loginUser);
+
 // Logout
 router.get("/logout", logoutUser);
+
+// Forgot password
+router.post("/forgot-password", forgotPassword);
+
+// Reset password
+router.post("/reset-password/:token", resetPassword);
 
 // ===================== ACCOUNT & PROFILE =====================
 
