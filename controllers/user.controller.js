@@ -1,3 +1,5 @@
+import crypto from "crypto";
+import bcrypt from "bcryptjs";
 import { User } from "../models/user.model.js";
 import { sendMail } from "../utils/mailer.js";
 
@@ -17,20 +19,28 @@ export const renderRegisterPage = (req, res) => {
   res.render("register", { title: "Register", error, success });
 };
 
-export const renderOtpPage = (req, res) => {
-  const { error, success, email } = req.session;
+export const renderForgotPasswordPage = (req, res) => {
+  const { error, success } = req.session;
   req.session.error = null;
   req.session.success = null;
 
-  if (!email) return res.redirect("/users/login");
-  res.render("verify-otp", { title: "Verify OTP", email, error, success });
+  // pass email if available (e.g., after submitting form)
+  const email = req.query.email || "";
+
+  res.render("forgot-password", { title: "Forgot Password", error, success, email });
 };
 
-// =================== REGISTER USER (with OTP) ===================
+export const renderResetPasswordPage = (req, res) => {
+  const { error, success } = req.session;
+  req.session.error = null;
+  req.session.success = null;
+  res.render("reset-password", { title: "Reset Password", token: req.params.token, error, success });
+};
+
+// =================== REGISTER USER ===================
 
 export const registerUser = async (req, res) => {
-  const { fullName, username, email } = req.body;
-  const timestamp = new Date().toLocaleString();
+  const { fullName, username, email, password } = req.body;
 
   try {
     const existingUser = await User.findOne({ email });
@@ -39,29 +49,24 @@ export const registerUser = async (req, res) => {
       return res.redirect("/users/register");
     }
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpiry = Date.now() + 10 * 60 * 1000; // 10 mins
-
     const newUser = new User({
       fullName,
       username,
       email,
-      otp,
-      otpExpiry,
-      isVerified: false
+      password, // bcrypt handled in pre-save hook
+      isVerified: true, // direct verification
     });
 
     await newUser.save();
 
     await sendMail(
       email,
-      "📩 Verify Your BookNest Account",
-      `Hello ${fullName},\n\nThanks for registering on BookNest!\nPlease verify your account using the OTP below:\n🔐 OTP: ${otp}\n\nThis OTP is valid for 10 minutes.\n\nIf you didn’t register, ignore this email.\n\nHappy reading,\nTeam BookNest`
+      "🎉 Welcome to BookNest",
+      `Hello ${fullName},\n\nYour account has been created successfully.\n\nHappy reading!\n— Team BookNest`
     );
 
-    req.session.success = "✅ Registration successful! OTP sent to your email.";
-    req.session.email = email;
-    return res.redirect("/users/verify-otp");
+    req.session.success = "✅ Registration successful! You can now log in.";
+    res.redirect("/users/login");
   } catch (err) {
     console.error("Register error:", err);
     req.session.error = "❌ Registration failed.";
@@ -69,126 +74,96 @@ export const registerUser = async (req, res) => {
   }
 };
 
-// =================== VERIFY OTP (for registration/login) ===================
+// =================== LOGIN USER ===================
 
-export const verifyOtpLogin = async (req, res) => {
-  const { otp } = req.body;
-  const { email } = req.session;
-  const timestamp = new Date().toLocaleString();
-
-  if (!email || !otp) {
-    req.session.error = "❌ Missing email or OTP.";
-    return res.redirect("/users/verify-otp");
-  }
+export const loginUser = async (req, res) => {
+  const { email, password } = req.body;
 
   try {
     const user = await User.findOne({ email });
-
-    if (!user || user.otp !== otp || user.otpExpiry < Date.now()) {
-      req.session.error = "❌ Invalid or expired OTP.";
-      return res.redirect("/users/verify-otp");
+    if (!user || !(await user.comparePassword(password))) {
+      req.session.error = "❌ Invalid email or password.";
+      return res.redirect("/users/login");
     }
-
-    // Mark verified
-    user.isVerified = true;
-    user.otp = undefined;
-    user.otpExpiry = undefined;
-    await user.save();
 
     req.session.user = {
       id: user._id,
       fullName: user.fullName,
-      email: user.email
+      email: user.email,
     };
 
-    await sendMail(
-      user.email,
-      "✅ Account Verified",
-      `Hi ${user.fullName},\n\nYour BookNest account has been successfully verified and Logged In.\n\n📅 Verified on: ${timestamp}\n\nEnjoy your reading journey!\n— Team BookNest`
-    );
-
-    delete req.session.email;
-    req.session.success = "🎉 Account verified and logged in!";
-    res.redirect("/"); // home page
+    req.session.success = "🎉 Logged in successfully!";
+    res.redirect("/");
   } catch (err) {
-    console.error("OTP verify error:", err);
-    req.session.error = "❌ Verification failed.";
-    res.redirect("/users/verify-otp");
+    console.error("Login error:", err);
+    req.session.error = "❌ Login failed.";
+    res.redirect("/users/login");
   }
 };
 
-// =================== SEND OTP FOR LOGIN ===================
+// =================== FORGOT PASSWORD ===================
 
-export const sendOtpForLogin = async (req, res) => {
+export const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
   try {
     const user = await User.findOne({ email });
     if (!user) {
       req.session.error = "❌ User not found.";
-      return res.redirect("/users/login");
+      return res.redirect("/users/forgot-password");
     }
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpiry = Date.now() + 5 * 60 * 1000;
-
-    user.otp = otp;
-    user.otpExpiry = otpExpiry;
+    // generate reset token
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    user.resetToken = resetToken;
+    user.resetTokenExpiry = Date.now() + 15 * 60 * 1000; // 15 min
     await user.save();
 
-    req.session.email = email;
+    const resetUrl = `${req.protocol}://${req.get("host")}/users/reset-password/${resetToken}`;
 
     await sendMail(
       email,
-      "🔐 Your OTP for Login",
-      `Hello ${user.fullName},\n\nPlease use the following One-Time Password (OTP) to log in:\n\n✅ OTP: ${otp}\n\n⏰ OTP is valid for 5 minutes.\n\nIf this wasn't you, please ignore.\n\n— BookNest Team`
+      "🔐 Reset Your Password",
+      `Hello ${user.fullName},\n\nClick below to reset your password (valid for 15 mins):\n\n${resetUrl}\n\nIf you didn’t request this, ignore this email.\n\n— BookNest Team`
     );
 
-    req.session.success = "📩 OTP sent to your email.";
-    res.redirect("/users/verify-otp");
+    req.session.success = "📩 Password reset link sent to your email.";
+    res.redirect(`/users/forgot-password?email=${encodeURIComponent(email)}`);
   } catch (err) {
-    console.error("Send OTP error:", err);
-    req.session.error = "❌ Failed to send OTP.";
-    res.redirect("/users/login");
+    console.error("Forgot password error:", err);
+    req.session.error = "❌ Failed to send reset link.";
+    res.redirect("/users/forgot-password");
   }
 };
 
-// =================== RESEND OTP (common for both flows) ===================
+// =================== RESET PASSWORD ===================
 
-export const resendOtp = async (req, res) => {
-  const { email } = req.session;
-
-  if (!email) {
-    req.session.error = "⚠️ Session expired. Please login/register again.";
-    return res.redirect("/users/login");
-  }
+export const resetPassword = async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
 
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({
+      resetToken: token,
+      resetTokenExpiry: { $gt: Date.now() },
+    });
+
     if (!user) {
-      req.session.error = "❌ User not found.";
-      return res.redirect("/users/login");
+      req.session.error = "❌ Invalid or expired token.";
+      return res.redirect("/users/forgot-password");
     }
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpiry = Date.now() + 10 * 60 * 1000; // 10 mins
-
-    user.otp = otp;
-    user.otpExpiry = otpExpiry;
+    user.password = password; // bcrypt handled in pre-save hook
+    user.resetToken = undefined;
+    user.resetTokenExpiry = undefined;
     await user.save();
 
-    await sendMail(
-      email,
-      "📩 Resend OTP - BookNest",
-      `Hello ${user.fullName},\n\nHere is your new OTP:\n\n🔐 OTP: ${otp}\n\n⏰ Valid for 10 minutes.\n\nIf you didn’t request this, ignore this email.\n\n— Team BookNest`
-    );
-
-    req.session.success = "📩 A new OTP has been sent to your email.";
-    res.redirect("/users/verify-otp");
+    req.session.success = "✅ Password reset successful. Please log in.";
+    res.redirect("/users/login");
   } catch (err) {
-    console.error("Resend OTP error:", err);
-    req.session.error = "❌ Failed to resend OTP.";
-    res.redirect("/users/verify-otp");
+    console.error("Reset password error:", err);
+    req.session.error = "❌ Failed to reset password.";
+    res.redirect("/users/forgot-password");
   }
 };
 
@@ -203,7 +178,7 @@ export const logoutUser = async (req, res) => {
       await sendMail(
         user.email,
         "📤 Logout Alert",
-        `Hello ${user.fullName},\n\nYou have successfully logged out of your BookNest account.\n\n📅 ${timestamp}\n\nIf this wasn’t you, contact support.\n\n— BookNest Team`
+        `Hello ${user.fullName},\n\nYou have successfully logged out of your BookNest account.\n\n📅 ${timestamp}\n\nIf this wasn’t you, contact support.\n\n— Team BookNest`
       );
     }
 
