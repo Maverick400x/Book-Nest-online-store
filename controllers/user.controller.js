@@ -23,10 +23,7 @@ export const renderForgotPasswordPage = (req, res) => {
   const { error, success } = req.session;
   req.session.error = null;
   req.session.success = null;
-
-  // pass email if available (e.g., after submitting form)
   const email = req.query.email || "";
-
   res.render("forgot-password", { title: "Forgot Password", error, success, email });
 };
 
@@ -169,29 +166,13 @@ export const resetPassword = async (req, res) => {
 
 // =================== LOGOUT ===================
 
-export const logoutUser = async (req, res) => {
-  const user = req.session.user;
-  const timestamp = new Date().toLocaleString();
-
-  try {
-    if (user) {
-      await sendMail(
-        user.email,
-        "📤 Logout Alert",
-        `Hello ${user.fullName},\n\nYou have successfully logged out of your BookNest account.\n\n📅 ${timestamp}\n\nIf this wasn’t you, contact support.\n\n— Team BookNest`
-      );
+export const logoutUser = (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error("Logout error:", err);
+      return res.redirect("/users/account");
     }
-
-    req.session.destroy((err) => {
-      if (err) {
-        console.error("Logout error:", err);
-        return res.redirect("/users/account");
-      }
-      res.clearCookie("connect.sid");
-      res.redirect("/users/login");
-    });
-  } catch (err) {
-    console.error("Logout exception:", err);
-    res.redirect("/users/account");
-  }
+    res.clearCookie("connect.sid");
+    res.redirect("/users/login");
+  });
 };
