@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register - BookNest</title>
+
+  <!-- Bootstrap CSS & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/register.css">
+
+  <style>
+    .left-panel {
+      background: url("/images/book-bg.jpg") no-repeat center center;
+      background-size: cover;
+      position: relative;
+    }
+    .left-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 0;
+    }
+    .left-panel > div {
+      position: relative;
+      z-index: 1;
+    }
+    .form-container {
+      min-width: 350px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Toast container -->
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 1100">
+  <div id="toast-error" class="toast align-items-center text-white bg-danger border-0" role="alert">
+    <div class="d-flex">
+      <div class="toast-body" id="toast-message">Validation error</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+
+<div class="d-flex min-vh-100">
+  <!-- Left Info Panel -->
+  <div class="left-panel d-none d-md-flex flex-column justify-content-center text-white p-5">
+    <div>
+      <h1 class="fw-bold">Welcome to BookNest 📚</h1>
+      <p class="lead mt-3">Discover, Read, and Grow.<br />Your personal BookNest for every genre.</p>
+      <p class="mt-4">Browse thousands of books, track your reading, and explore new releases all in one place.</p>
+    </div>
+  </div>
+
+  <!-- Right Register Form -->
+  <div class="right-panel d-flex align-items-center justify-content-center flex-fill bg-light">
+    <div class="form-container p-4 shadow-lg rounded bg-white">
+
+      <% if (typeof error !== "undefined" && error) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <%= error %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      <% } %>
+
+      <% if (typeof success !== "undefined" && success) { %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+          <%= success %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      <% } %>
+
+      <h2 class="text-center mb-4">Create Account</h2>
+
+      <form id="registerForm" action="/users/register" method="POST" novalidate>
+        <!-- Full Name -->
+        <div class="mb-3 input-group">
+          <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+          <input type="text" name="fullName" id="fullName" class="form-control" placeholder="Full Name" required />
+        </div>
+
+        <!-- Username -->
+        <div class="mb-3 input-group">
+          <span class="input-group-text"><i class="bi bi-person"></i></span>
+          <input type="text" name="username" id="username" class="form-control" placeholder="Username" required />
+        </div>
+
+        <!-- Email -->
+        <div class="mb-3 input-group">
+          <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+          <input type="email" name="email" id="email" class="form-control" placeholder="Email address" required />
+        </div>
+
+        <button type="submit" class="btn btn-success w-100">Register</button>
+      </form>
+
+      <p class="text-center mt-3 mb-2">
+        Already have an account? <a href="/users/login" class="text-decoration-none">Login here</a>
+      </p>
+
+      <div class="text-center">
+        <a href="/" class="btn btn-sm btn-outline-secondary mt-2">
+          <i class="bi bi-arrow-left"></i> Back to Home
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  // Toast setup
+  const showToast = (message) => {
+    const toastMessage = document.getElementById("toast-message");
+    const toastElement = document.getElementById("toast-error");
+    toastMessage.textContent = message;
+    const toast = new bootstrap.Toast(toastElement);
+    toast.show();
+  };
+
+  // Form validation
+  document.getElementById("registerForm").addEventListener("submit", function (e) {
+    const fullName = document.getElementById("fullName").value.trim();
+    const username = document.getElementById("username").value.trim();
+    const email = document.getElementById("email").value.trim();
+
+    const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_]{2,19}$/;
+    const isGmail = email.endsWith("@gmail.com");
+
+    if (fullName.length < 3) {
+      e.preventDefault();
+      showToast("Full name must be at least 3 characters.");
+    } else if (!usernameRegex.test(username)) {
+      e.preventDefault();
+      showToast("Username must start with a letter and be 3–20 characters.");
+    } else if (!isGmail) {
+      e.preventDefault();
+      showToast("Only Gmail addresses are allowed.");
+    }
+  });
+</script>
+
+</body>
+</html>

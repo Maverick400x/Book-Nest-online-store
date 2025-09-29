@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Verify OTP - BookNest</title>
+
+  <!-- Bootstrap CSS & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/login.css">
+
+  <style>
+    .left-panel {
+      background: url("/images/book-bg.jpg") no-repeat center center;
+      background-size: cover;
+      position: relative;
+    }
+    .left-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 0;
+    }
+    .left-panel > div {
+      position: relative;
+      z-index: 1;
+    }
+    .form-container {
+      min-width: 350px;
+    }
+    .otp-boxes input {
+      width: 45px;
+      height: 50px;
+      text-align: center;
+      font-size: 24px;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      margin: 0 5px;
+      outline: none;
+    }
+    .otp-boxes input:focus {
+      border-color: #198754;
+      box-shadow: 0 0 5px #198754;
+    }
+  </style>
+</head>
+<body>
+
+<div class="d-flex min-vh-100">
+  <!-- Left Info Panel -->
+  <div class="left-panel d-none d-md-flex flex-column justify-content-center text-white p-5">
+    <div>
+      <h1 class="fw-bold">Verify Your OTP 🔐</h1>
+      <p class="lead mt-3">Enter the OTP sent to your Gmail to continue.</p>
+      <p class="mt-4">One-time use. Secure login.</p>
+    </div>
+  </div>
+
+  <!-- Right OTP Verification Form -->
+  <div class="right-panel d-flex align-items-center justify-content-center flex-fill bg-light">
+    <div class="form-container p-4 shadow-lg rounded">
+
+      <% if (typeof error !== "undefined" && error) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <%= error %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      <% } %>
+
+      <% if (typeof success !== "undefined" && success) { %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+          <%= success %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      <% } %>
+
+      <h2 class="text-center mb-4">Enter OTP</h2>
+
+      <!-- OTP Verification Form -->
+      <form id="otpForm" action="/users/verify-otp" method="POST" novalidate>
+        <input type="hidden" name="email" value="<%= email %>" />
+        <input type="hidden" name="otp" id="otp" />
+
+        <div class="mb-4 d-flex justify-content-center otp-boxes">
+          <% for (let i = 0; i < 6; i++) { %>
+            <input type="text" maxlength="1" class="otp-input form-control" required />
+          <% } %>
+        </div>
+
+        <button type="submit" class="btn btn-success w-100">Verify OTP</button>
+      </form>
+
+      <!-- Resend OTP (POST form instead of link) -->
+      <form action="/users/send-otp" method="POST" class="text-center mt-3">
+        <input type="hidden" name="email" value="<%= email %>" />
+        <button type="submit" class="btn btn-link text-decoration-none p-0">
+          Didn't get the OTP? Resend
+        </button>
+      </form>
+
+      <!-- Back to login -->
+      <div class="text-center">
+        <a href="/users/login" class="btn btn-sm btn-outline-secondary mt-2">
+          <i class="bi bi-arrow-left"></i> Back To Login</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  // Auto-focus logic for OTP inputs
+  const inputs = document.querySelectorAll(".otp-input");
+  const otpField = document.getElementById("otp");
+
+  inputs.forEach((input, index) => {
+    input.addEventListener("input", () => {
+      if (input.value.length === 1 && index < inputs.length - 1) {
+        inputs[index + 1].focus();
+      }
+    });
+
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Backspace" && input.value === "" && index > 0) {
+        inputs[index - 1].focus();
+      }
+    });
+  });
+
+  // On form submit, combine all OTP digits
+  document.getElementById("otpForm").addEventListener("submit", (e) => {
+    let otp = "";
+    inputs.forEach(input => {
+      otp += input.value.trim();
+    });
+
+    if (otp.length !== 6 || !/^\d{6}$/.test(otp)) {
+      e.preventDefault();
+      alert("Please enter a valid 6-digit OTP.");
+    } else {
+      otpField.value = otp;
+    }
+  });
+</script>
+
+</body>
+</html>
