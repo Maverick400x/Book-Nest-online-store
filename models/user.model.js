@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
 const userSchema = new mongoose.Schema({
   fullName: {
@@ -32,11 +33,10 @@ const userSchema = new mongoose.Schema({
 
   phone: {
     type: String,
-    required: false, // ✅ Make optional
     trim: true,
     validate: {
       validator: function (v) {
-        return !v || /^\d{10}$/.test(v); // Allow blank or valid 10-digit
+        return !v || /^\d{10}$/.test(v); // ✅ allow blank or 10-digit
       },
       message: "Enter a valid 10-digit phone number."
     }
@@ -44,23 +44,24 @@ const userSchema = new mongoose.Schema({
 
   address: {
     type: String,
-    required: false, // ✅ Make optional
     trim: true,
     maxlength: [200, "Address cannot exceed 200 characters."]
   },
 
   password: {
     type: String,
-    required: false, // ✅ Make optional for OTP flow
-    trim: true
+    required: [true, "Password is required."],
+    minlength: [6, "Password must be at least 6 characters long."]
   },
 
-  otp: {
-    type: String
+  resetToken: {
+    type: String,
+    default: null
   },
 
-  otpExpiry: {
-    type: Date
+  resetTokenExpiry: {
+    type: Date,
+    default: null
   },
 
   createdAt: {
@@ -68,5 +69,17 @@ const userSchema = new mongoose.Schema({
     default: Date.now
   }
 });
+
+// ================== PASSWORD HASHING ==================
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next(); // Only hash if changed
+  this.password = await bcrypt.hash(this.password, 10);
+  next();
+});
+
+// ================== COMPARE PASSWORD ==================
+userSchema.methods.comparePassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
 
 export const User = mongoose.model("User", userSchema);
