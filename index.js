@@ -13,8 +13,6 @@ import cartRoutes from "./routes/cart.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import orderRoutes from "./routes/order.routes.js";
 import contactRoutes from "./routes/contact.routes.js";
-// ❌ Razorpay removed
-// import razorpayRoutes from "./routes/razorpay.routes.js";
 
 import { loggerMiddleware } from "./middlewares/logger.middleware.js";
 import { products } from "./models/product.model.js";
@@ -22,9 +20,9 @@ import { Order } from "./models/order.model.js";
 
 const app = express();
 
-// Middlewares
+// ===== Middlewares =====
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json()); // JSON body parsing
+app.use(bodyParser.json());
 app.use(express.static("public"));
 
 app.use(
@@ -37,20 +35,17 @@ app.use(
 
 app.use(loggerMiddleware);
 
-// View Engine
+// ===== View Engine =====
 app.set("view engine", "ejs");
 app.set("views", path.join(process.cwd(), "views"));
 
-// Routes
+// ===== Routes =====
 app.use("/products", productRoutes);
 app.use("/cart", cartRoutes);
 app.use("/users", userRoutes);
 app.use("/orders", orderRoutes);
 app.use("/contact", contactRoutes);
-// ❌ Razorpay route removed
-// app.use("/api/razorpay", razorpayRoutes);
 
-// Custom Routes
 app.get("/discounts", (req, res) => {
   res.render("discounts", { user: req.session.user });
 });
@@ -98,8 +93,5 @@ app.use((req, res) => {
   res.status(404).render("404", { title: "Page Not Found" });
 });
 
-// Start Server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () =>
-  console.log(`✅ Server running on http://localhost:${PORT}`)
-);
+// ✅ IMPORTANT: Do not call app.listen() on Vercel
+export default app;
