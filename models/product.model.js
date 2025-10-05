@@ -8,7 +8,7 @@ export let products = [
   tag: "fiction",               // for related books, category filtering
   limitedEdition: true,        // optional, for badge/highlight
   hotSale: false,              // optional, for special promotion
-  image: "https://www.amazon.in/Alchemist-Paulo-Coelho/dp/8172234988", // custom image path (or placeholder)
+  image: "https://m.media-amazon.com/images/I/617lxveUjYL.jpg", // custom image path (or placeholder)
   description: "A novel that blends mysticism and self-discovery through a shepherd’s journey to find treasure." // optional
 },
   {
