@@ -52,7 +52,7 @@ export let products = [
   tag: "self-help",
   limitedEdition: true,
   hotSale: false,
-  image: "/src/books/ikigai.jpg",
+  image: "https://m.media-amazon.com/images/I/71cRwWclCvL._UF1000,1000_QL80_.jpg",
   description: "Discover the Japanese secret to a long and happy life. Ikigai explores the intersection of passion, mission, profession, and vocation to help you find your purpose."
 },
   {
@@ -63,7 +63,7 @@ export let products = [
   tag: "finance",
   limitedEdition: false,
   hotSale: true,
-  image: "/src/books/psychology-of-money.jpg",
+  image: "https://m.media-amazon.com/images/I/71XEsXS5RlL.jpg",
   description: "In 'The Psychology of Money', Morgan Housel explains how your behavior matters more than your knowledge when it comes to wealth, greed, and happiness. A must-read for understanding money from a human perspective."
 },
   {
@@ -74,7 +74,7 @@ export let products = [
   tag: "self-help",
   limitedEdition: false,
   hotSale: true,
-  image: "/src/books/think-and-grow-rich.jpg",
+  image: "https://m.media-amazon.com/images/I/61IxJuRI39L._UF1000,1000_QL80_.jpg",
   description: "One of the most influential books of all time, 'Think and Grow Rich' outlines the philosophy of success and wealth building through the power of thought and goal setting. Napoleon Hill draws on stories of successful individuals to inspire personal achievement."
 },
   {
@@ -85,7 +85,7 @@ export let products = [
   tag: "productivity",
   limitedEdition: true,
   hotSale: false,
-  image: "/src/books/deep-work.jpg",
+  image: "https://m.media-amazon.com/images/I/71din4TLubL._UF1000,1000_QL80_.jpg",
   description: "In 'Deep Work', Cal Newport makes the case for intense focus and distraction-free concentration as the key to productivity and success in the digital age. A practical guide to mastering hard things quickly and producing high-value work in less time."
 },
   {
@@ -96,7 +96,7 @@ export let products = [
   tag: "self-help",
   limitedEdition: false,
   hotSale: true,
-  image: "/src/books/monk-who-sold-ferrari.jpg",
+  image: "https://m.media-amazon.com/images/I/61OByUf1TfL.jpg",
   description: "A life-changing fable that combines spiritual wisdom with practical life strategies. Robin Sharma narrates the story of a high-powered lawyer whose journey to the Himalayas leads him to discover the secrets of a more fulfilling and balanced life."
 },
   {
@@ -107,7 +107,7 @@ export let products = [
   tag: "biography",
   limitedEdition: true,
   hotSale: true,
-  image: "/src/books/cant-hurt-me.jpg",
+  image: "https://m.media-amazon.com/images/I/81VpFFpZTtL._UF1000,1000_QL80_.jpg",
   description: "In this powerful memoir, Navy SEAL and endurance athlete David Goggins shares how he overcame a troubled past, physical limitations, and mental barriers to become a symbol of extreme perseverance. 'Can't Hurt Me' teaches the power of self-discipline, grit, and the mindset of no excuses."
 },
   {
@@ -118,7 +118,7 @@ export let products = [
   tag: "leadership",
   limitedEdition: false,
   hotSale: false,
-  image: "/src/books/start-with-why.jpg",
+  image: "https://simonsinek.com/wp-content/uploads/2021/12/books-detail-start-with-why.jpg",
   description: "Simon Sinek explores how great leaders inspire action by starting with a clear sense of 'why.' This bestseller guides readers on how to create deeper impact, build stronger organizations, and lead with purpose and clarity."
 },
   {
@@ -129,7 +129,7 @@ export let products = [
   tag: "startup",
   limitedEdition: false,
   hotSale: true,
-  image: "/src/books/zero-to-one.jpg",
+  image: "https://m.media-amazon.com/images/I/71uAI28kJuL._UF1000,1000_QL80_.jpg",
   description: "In 'Zero to One,' billionaire entrepreneur and investor Peter Thiel shares bold ideas on innovation, competition, and building the future. A must-read for startup founders and anyone who wants to create something truly new and valuable."
 },
   {
@@ -140,7 +140,7 @@ export let products = [
   tag: "startup",
   limitedEdition: false,
   hotSale: false,
-  image: "/src/books/the-lean-startup.jpg",
+  image: "https://m.media-amazon.com/images/I/71sxTeZIi6L.jpg",
   description: "Eric Ries presents a revolutionary approach to launching businesses by applying lean principles to startups. This modern classic helps entrepreneurs build sustainable startups through rapid experimentation, validated learning, and agile development."
 },
   {
@@ -151,7 +151,7 @@ export let products = [
   tag: "business",
   limitedEdition: false,
   hotSale: false,
-  image: "/src/books/rework.jpg",
+  image: "https://m.media-amazon.com/images/I/61xM6l2IKJL.jpg",
   description: "Rework is a bold manifesto that turns traditional business wisdom on its head. Jason Fried shares practical, no-nonsense advice on productivity, planning, growth, and why less is more in business."
 },
   {
@@ -162,7 +162,7 @@ export let products = [
   tag: "self-help",
   limitedEdition: false,
   hotSale: false,
-  image: "/src/books/subtle-art.jpg",
+  image: "https://m.media-amazon.com/images/I/71t4GuxLCuL.jpg",
   description: "Mark Manson cuts through the clichés of the self-help genre with this refreshing, honest guide to living a better life by caring less about the things that don’t matter and focusing more on what truly does."
 },
   {
@@ -173,7 +173,7 @@ export let products = [
   tag: "self-help",
   limitedEdition: false,
   hotSale: false,
-  image: "/src/books/you-can-win.jpg",
+  image: "https://m.media-amazon.com/images/I/71KCBR2XkhL.jpg",
   description: "A timeless classic by Shiv Khera, *You Can Win* offers practical insights and inspirational strategies for personal growth, success, and leadership, guiding readers to develop a positive attitude and achieve excellence."
 },
   {
