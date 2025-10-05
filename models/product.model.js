@@ -19,7 +19,7 @@ export let products = [
   tag: "finance",
   limitedEdition: false,
   hotSale: true,
-  image: "/src/books/rich-dad-poor-dad.jpg",
+  image: "https://cdn.kobo.com/book-images/c81ea4de-cfb7-415d-8634-314aad041fdb/1200/1200/False/rich-dad-poor-dad-9.jpg",
   description: "A powerful personal finance book that challenges traditional beliefs about money and investing. Learn the mindset of the wealthy and how to make money work for you."
 },
   {
@@ -30,7 +30,7 @@ export let products = [
   tag: "self-help",
   limitedEdition: false,
   hotSale: true,
-  image: "/src/books/atomic-habits.jpg",
+  image: "https://upload.wikimedia.org/wikipedia/commons/0/06/Atomic_habits.jpg",
   description: "Atomic Habits is a transformative guide on how small changes lead to remarkable results. Learn to break bad habits, build good ones, and master the science of habit formation."
 },
 {
@@ -41,7 +41,7 @@ export let products = [
   tag: "self-help",
   limitedEdition: true,
   hotSale: false,
-  image: "/src/books/power-of-subconscious.jpg",
+  image: "https://m.media-amazon.com/images/I/81gTwYAhU7L.jpg",
   description: "A life-changing classic that teaches how to harness the hidden powers of your subconscious mind to achieve success, happiness, and prosperity in all areas of life."
 },
   {
