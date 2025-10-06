@@ -12,7 +12,7 @@ const orderSchema = new mongoose.Schema({
       price: { type: Number, required: true },
       image: {
         type: String,
-        default: "/src/books/default-book.png",
+        default: "https://neelkanthpublishers.com/assets/bookcover_cover.png",
       },
     },
   ],
