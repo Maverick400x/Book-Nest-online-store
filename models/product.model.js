@@ -744,7 +744,7 @@ export let products = [
   price: 999,
   limitedEdition: true,
   tag: "classic",
-  image: "/src/books/gatsby-leather.jpg", // Replace with your actual image path
+  image: "https://m.media-amazon.com/images/I/81kTltRvsRL._UF1000,1000_QL80_.jpg", // Replace with your actual image path
   description: "A luxurious leather-bound edition of F. Scott Fitzgerald's timeless classic, capturing the elegance and tragedy of the Roaring Twenties."
 },
   {
