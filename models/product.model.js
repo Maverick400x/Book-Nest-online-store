@@ -1056,7 +1056,7 @@ export let products = [
   tag: "demo",
   limitedEdition: false,
   hotSale: false,
-  image: "/src/books/default-book.png", // Replace with a real image path if needed
+  image: "https://neelkanthpublishers.com/assets/bookcover_cover.png", // Replace with a real image path if needed
   description: "This is a sample book added for testing purposes. Not for actual sale."
 }
 ];
