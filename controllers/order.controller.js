@@ -117,7 +117,7 @@ Thanks for shopping with us!
   }
 };
 
-// 📄 GET ALL ORDERS FOR CURRENT USER
+// 📊 GET ALL ORDERS + USER METRICS
 export const getOrders = async (req, res) => {
   try {
     const userOrders = await Order.find({ userId: req.session.user.id }).sort({ createdAt: -1 });
@@ -132,9 +132,19 @@ export const getOrders = async (req, res) => {
       }
     }
 
+    // 📈 Generate user metrics
+    const metrics = {
+      totalOrders: userOrders.length,
+      totalSpent: userOrders.reduce((acc, o) => acc + (o.grandTotal ? parseFloat(o.grandTotal) : 0), 0),
+      deliveredOrders: userOrders.filter(o => o.status === "Delivered").length,
+      cancelledOrders: userOrders.filter(o => o.status === "Cancelled").length,
+      processingOrders: userOrders.filter(o => o.status === "Processing").length,
+    };
+
     res.render("orders", {
       title: "Your Orders",
       orders: userOrders,
+      metrics, // <-- added metrics for the EJS
       user: req.session.user,
       today: today.toDateString(),
     });
