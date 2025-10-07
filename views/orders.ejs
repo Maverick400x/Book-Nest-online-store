@@ -77,6 +77,35 @@
       margin-top: 15px;
       border-left: 4px solid #17a2b8;
     }
+    .metric-card {
+      flex: 1 1 200px;
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+    .metric-icon {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      color: #007bff;
+    }
+    .metric-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+    .metric-label {
+      font-size: 0.9rem;
+      color: #555;
+    }
+    .metrics-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      margin-bottom: 30px;
+    }
     .modal-content {
       border-radius: 12px;
     }
@@ -87,8 +116,37 @@
 <!-- ======= NAVBAR ======= -->
 <%- include('partials/header') %>
 
+<!-- ======= METRICS ======= -->
+<div class="container mt-4">
+  <h2 class="text-center mb-4">
+  <i class="bi bi-person-circle me-2"></i>User Metrics
+  </h2>
+  <div class="metrics-container">
+    <div class="metric-card">
+      <div class="metric-icon"><i class="bi bi-cart-check-fill"></i></div>
+      <div class="metric-value"><%= metrics.totalOrders %></div>
+      <div class="metric-label">Total Orders</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-icon"><i class="bi bi-cash-stack"></i></div>
+      <div class="metric-value">₹<%= metrics.totalSpent.toFixed(2) %></div>
+      <div class="metric-label">Total Spent</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-icon"><i class="bi bi-check2-circle"></i></div>
+      <div class="metric-value"><%= metrics.deliveredOrders %></div>
+      <div class="metric-label">Delivered Orders</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-icon"><i class="bi bi-x-circle-fill"></i></div>
+      <div class="metric-value"><%= metrics.cancelledOrders %></div>
+      <div class="metric-label">Cancelled Orders</div>
+    </div>
+  </div>
+</div>
+
 <!-- ======= ORDERS CONTENT ======= -->
-<div class="container mt-5">
+<div class="container mt-3">
   <h2 class="text-center mb-4">📦 Your Orders</h2>
 
   <% if (orders.length > 0) { %>
