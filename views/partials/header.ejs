@@ -10,16 +10,15 @@
   <link rel="stylesheet" href="/css/style.css">
 
   <style>
-    /* Custom CSS Variables for Branding */
     :root {
-      --booknest-primary: #1e81b0; /* Deep Teal/Blue */
-      --booknest-secondary: #004d73; /* Darker Blue for background */
-      --booknest-accent: #ffc107; /* Warning yellow/gold */
+      --booknest-primary: #1e81b0;
+      --booknest-secondary: #004d73;
+      --booknest-accent: #ffc107;
     }
 
     body {
-      /* REMOVED: text-transform: capitalize; for better title display */
       font-family: 'Inter', sans-serif;
+      text-transform: capitalize;
     }
 
     /* --- Navbar Styling --- */
@@ -39,54 +38,68 @@
     .navbar-brand span {
       font-weight: 300;
     }
-    
+
     .navbar-toggler {
-        border-color: rgba(255, 255, 255, 0.3);
-    }
-    .navbar-toggler-icon {
-        filter: invert(1);
+      border-color: rgba(255, 255, 255, 0.3);
     }
 
-    /* --- Navigation Links --- */
+    .navbar-toggler-icon {
+      filter: invert(1);
+    }
+
     .nav-link {
       color: rgba(255, 255, 255, 0.8) !important;
       font-weight: 400;
       transition: color 0.3s, background-color 0.3s;
-      margin: 0 5px; /* Added slight spacing */
+      margin: 0 5px;
       border-radius: 4px;
+      position: relative;
     }
-    
+
     .nav-link:hover {
       color: #fff !important;
       background-color: rgba(255, 255, 255, 0.1);
     }
-    
-    /* --- Specific User Elements --- */
+
+    /* Cart Badge */
+    .cart-badge {
+      position: absolute;
+      top: -6px;
+      right: -10px;
+      background-color: #dc3545;
+      color: #fff;
+      border-radius: 50%;
+      padding: 2px 6px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      line-height: 1;
+    }
+
     .nav-link-user {
-        background-color: var(--booknest-primary);
-        color: #fff !important;
-        font-weight: 600 !important;
-        padding: 0.5rem 1rem !important;
-        border-radius: 20px;
+      background-color: var(--booknest-primary);
+      color: #fff !important;
+      font-weight: 600 !important;
+      padding: 0.5rem 1rem !important;
+      border-radius: 20px;
     }
 
     .nav-link-user:hover {
-        background-color: #1a6f99;
-        color: #fff !important;
+      background-color: #1a6f99;
+      color: #fff !important;
     }
     
     .btn-login {
-        background-color: var(--booknest-accent);
-        color: #212529;
-        font-weight: 700;
-        border: none;
-        transition: all 0.3s;
-    }
-    .btn-login:hover {
-        background-color: #e0a800;
-        transform: scale(1.05);
+      background-color: var(--booknest-accent);
+      color: #212529;
+      font-weight: 700;
+      border: none;
+      transition: all 0.3s;
     }
 
+    .btn-login:hover {
+      background-color: #e0a800;
+      transform: scale(1.05);
+    }
   </style>
 </head>
 <body>
@@ -94,7 +107,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark fixed-top shadow-sm">
   <div class="container">
     <a class="navbar-brand d-flex align-items-center" href="/">
-      <img src="https://book-nest-wgrp.onrender.com//src/logo.png" alt="BookNest Logo" height="30" class="me-2">
+      <img src="https://book-nest-wgrp.onrender.com/src/logo.svg" alt="BookNest Logo" height="30" class="me-2">
       Book<span>Nest</span>
     </a>
 
@@ -110,11 +123,29 @@
               <i class="bi bi-person-circle me-1"></i> Hello, <%= user.username %>
             </a>
           </li>
-          
-          <li class="nav-item"><a class="nav-link" href="/products"><i class="bi bi-book me-1"></i>Products</a></li>
-          <li class="nav-item"><a class="nav-link" href="/cart"><i class="bi bi-cart4 me-1"></i>Cart</a></li>
-          <li class="nav-item"><a class="nav-link" href="/orders"><i class="bi bi-truck me-1"></i>Orders</a></li>
-          
+
+          <li class="nav-item">
+            <a class="nav-link" href="/products">
+              <i class="bi bi-book me-1"></i>Products
+            </a>
+          </li>
+
+          <!-- CART LINK WITH COUNT -->
+          <li class="nav-item position-relative">
+            <a class="nav-link" href="/cart">
+              <i class="bi bi-cart4 me-1"></i>Cart
+              <% if (typeof cartCount !== 'undefined' && cartCount > 0) { %>
+                <span class="cart-badge"><%= cartCount %></span>
+              <% } %>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="/orders">
+              <i class="bi bi-truck me-1"></i>Orders
+            </a>
+          </li>
+
           <li class="nav-item ms-lg-2">
             <a class="nav-link text-danger fw-bold" href="/users/logout">
               <i class="bi bi-box-arrow-right me-1"></i> Logout
