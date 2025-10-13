@@ -113,8 +113,8 @@ app.use((req, res, next) => {
 // ========================
 // Cron Jobs
 // ========================
-sendWeeklyMetrics(); // Weekly metrics for all users (cron inside the module)
-sendStoreUpdates();   // Store updates for all users (cron inside the module)
+// sendWeeklyMetrics(); // Weekly metrics for all users (cron inside the module)
+// sendStoreUpdates();   // Store updates for all users (cron inside the module)
 
 // ========================
 // 404 Handler
