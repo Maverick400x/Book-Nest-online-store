@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Books - BookNest</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+
+  <style>
+    :root {
+      --booknest-primary: #1e81b0;
+    }
+
+    body {
+      padding-top: 75px;
+      padding-bottom: 80px;
+      font-family: 'Inter', sans-serif;
+      background-color: #f4f7f6;
+    }
+
+    h2 {
+      font-weight: 700;
+      color: var(--booknest-primary);
+    }
+
+    /* --- Card Improvements --- */
+    .card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border: 1px solid #dee2e6;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-img-top-container {
+      background-color: #fff;
+      height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+    }
+
+    .card-img-top {
+      max-height: 100%;
+      max-width: 100%;
+      object-fit: contain;
+    }
+
+    .card-body {
+      padding: 1rem;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      min-height: 2.5rem;
+    }
+
+    /* --- Filter Bar --- */
+    .filter-bar {
+      background-color: #ffffff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e0e0e0;
+    }
+
+    /* --- Smaller search and sort bar --- */
+    .filter-bar input.form-control,
+    .filter-bar select.form-select {
+      font-size: 0.9rem !important;
+      padding: 0.5rem 0.75rem !important;
+      height: 42px !important;
+    }
+
+    .filter-bar button.btn {
+      font-size: 0.9rem !important;
+      padding: 0.5rem 1rem !important;
+      height: 42px !important;
+    }
+
+    .btn-primary {
+      background-color: var(--booknest-primary);
+      border-color: var(--booknest-primary);
+    }
+    .btn-primary:hover {
+      background-color: #1a6f99;
+      border-color: #1a6f99;
+    }
+
+    /* --- Pagination --- */
+    .pagination {
+      white-space: nowrap;
+      overflow-x: auto;
+      flex-wrap: nowrap;
+    }
+
+    /* Sticky pagination on mobile */
+    @media (max-width: 768px) {
+      .pagination-sticky {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: #fff;
+        z-index: 1050;
+        padding: 10px 0;
+        box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .pagination-sticky ul {
+        margin-bottom: 0;
+      }
+    }
+  </style>
+
+  <script>
+    function sortProducts() {
+      const sortValue = document.getElementById("sortOptions").value;
+      const search = document.querySelector('#search-input').value || '';
+      const currentPage = <%= currentPage || 1 %>; 
+      window.location.href = `/products?page=${currentPage}&sort=${sortValue}&search=${encodeURIComponent(search)}`;
+    }
+  </script>
+</head>
+<body>
+
+<%- include('partials/header') %>
+
+<div class="container mt-4">
+  <h2 class="text-center mb-5">📚 Discover Our Collection</h2>
+
+  <div class="filter-bar mb-5">
+    <div class="row g-3 align-items-center">
+      <div class="col-12 col-lg-8">
+        <form action="/products" method="GET" class="d-flex">
+          <input 
+            type="text" 
+            name="search" 
+            id="search-input" 
+            class="form-control me-2"
+            placeholder="Search by title, author, or tag..." 
+            value="<%= search || '' %>">
+          <button type="submit" class="btn btn-primary flex-shrink-0">
+            <i class="bi bi-search me-1"></i> Search
+          </button>
+        </form>
+      </div>
+      <div class="col-12 col-lg-4">
+        <select id="sortOptions" class="form-select" onchange="sortProducts()">
+          <option value="">Sort By Relevance</option>
+          <option value="priceLow" <%= sort === 'priceLow' ? 'selected' : '' %>>Price: Low to High</option>
+          <option value="priceHigh" <%= sort === 'priceHigh' ? 'selected' : '' %>>Price: High to Low</option>
+          <option value="titleAZ" <%= sort === 'titleAZ' ? 'selected' : '' %>>Title: A-Z</option>
+          <option value="titleZA" <%= sort === 'titleZA' ? 'selected' : '' %>>Title: Z-A</option>
+          <option value="authorAZ" <%= sort === 'authorAZ' ? 'selected' : '' %>>Author: A-Z</option>
+          <option value="authorZA" <%= sort === 'authorZA' ? 'selected' : '' %>>Author: Z-A</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <% if (products && products.length > 0) { %>
+      <% products.slice(0, 8).forEach(product => { %>
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3"> 
+          <div class="card h-100">
+            <div class="card-img-top-container">
+              <img src="<%= product.image || '/src/books/default-book.png' %>" alt="Cover of <%= product.title %>" class="card-img-top">
+            </div>
+            <div class="card-body text-center d-flex flex-column">
+              <h5 class="card-title text-truncate" title="<%= product.title %>">
+                <%= product.title %>
+              </h5>
+              <p class="card-text mb-1 small text-muted">By: <%= product.author %></p>
+
+              <div class="d-flex justify-content-center my-2">
+                <% if (product.limitedEdition) { %>
+                  <span class="badge bg-danger me-2">Limited</span>
+                <% } %>
+                <% if (product.hotSale) { %>
+                  <span class="badge bg-warning text-dark">🔥 Sale</span>
+                <% } %>
+              </div>
+
+              <p class="card-text mb-3 fw-bold fs-5 text-primary">
+                ₹<%= product.price.toFixed(2) %>
+              </p>
+
+              <div class="mt-auto">
+                <a href="/products/<%= product.id || product._id %>" class="btn btn-outline-primary w-100">
+                  <i class="bi bi-eye"></i> View Details
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <div class="col-12">
+        <div class="alert alert-warning text-center p-4">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          No books found matching your criteria. Try adjusting the search term or sorting option.
+        </div>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<% if (totalPages > 1) { %>
+  <div class="pagination-sticky">
+    <nav class="d-flex justify-content-center overflow-auto mt-4">
+      <ul class="pagination flex-nowrap">
+        <% 
+          const encodedSearch = encodeURIComponent(search || '');
+          const paginationBaseUrl = `/products?sort=${sort || ''}&search=${encodedSearch}`;
+        %>
+
+        <% if (currentPage > 1) { %>
+          <li class="page-item">
+            <a class="page-link" href="<%= paginationBaseUrl %>&page=<%= currentPage - 1 %>" aria-label="Previous">
+              <span aria-hidden="true">&laquo;</span>
+            </a>
+          </li>
+        <% } %>
+
+        <% for (let i = 1; i <= totalPages; i++) { %>
+          <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+            <a class="page-link" href="<%= paginationBaseUrl %>&page=<%= i %>"><%= i %></a>
+          </li>
+        <% } %>
+
+        <% if (currentPage < totalPages) { %>
+          <li class="page-item">
+            <a class="page-link" href="<%= paginationBaseUrl %>&page=<%= currentPage + 1 %>" aria-label="Next">
+              <span aria-hidden="true">&raquo;</span>
+            </a>
+          </li>
+        <% } %>
+      </ul>
+    </nav>
+  </div>
+<% } %>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
