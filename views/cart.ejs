@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Shopping Cart - BookNest</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Bootstrap & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+
+  <style>
+    body {
+      padding-top: 70px;
+      background-color: #f8f9fa;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .cart-card {
+      border: none;
+      border-radius: 1rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    .cart-header {
+      background: #0d6efd;
+      color: white;
+      padding: 1rem 1.5rem;
+    }
+    .table > :not(caption) > * > * {
+      vertical-align: middle;
+    }
+    .table td img {
+      width: 70px;
+      border-radius: 8px;
+    }
+    .total-card {
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      padding: 1.5rem;
+    }
+    .btn-remove {
+      transition: all 0.2s;
+    }
+    .btn-remove:hover {
+      transform: scale(1.05);
+      background-color: #dc3545;
+    }
+    .empty-cart {
+      margin-top: 80px;
+      text-align: center;
+    }
+    .empty-cart i {
+      font-size: 5rem;
+      color: #6c757d;
+      margin-bottom: 1rem;
+    }
+    textarea, input {
+      border-radius: 8px !important;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ======= NAVBAR ======= -->
+<%- include('partials/header') %>
+
+<!-- ======= MAIN ======= -->
+<div class="container my-5">
+  <h2 class="mb-4 fw-semibold"><i class="bi bi-cart-check me-2"></i>Shopping Cart</h2>
+
+  <% if (cart.length > 0) {
+      const subtotal = cart.reduce((sum, item) => sum + item.price, 0);
+      const grandTotal = subtotal;
+  %>
+
+  <!-- ===== Cart Card ===== -->
+  <div class="card cart-card mb-4">
+    <div class="cart-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0"><i class="bi bi-bag-fill me-2"></i>Your Cart Items</h5>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table mb-0 text-center align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Cover</th>
+            <th class="text-start">Book</th>
+            <th>Author</th>
+            <th>Price (₹)</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% cart.forEach((item, index) => { %>
+          <tr>
+            <td><img src="<%= item.image || '/images/default-book.png' %>" alt="<%= item.title %>"></td>
+            <td class="text-start">
+              <div class="fw-semibold"><%= item.title %></div>
+            </td>
+            <td><%= item.author %></td>
+            <td class="fw-bold text-success">₹<%= item.price.toFixed(2) %></td>
+            <td>
+              <a href="/cart/remove/<%= index %>" class="btn btn-sm btn-danger btn-remove">
+                <i class="bi bi-trash-fill"></i>
+              </a>
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== Totals & Checkout ===== -->
+  <div class="row">
+    <div class="col-lg-6">
+      <div class="total-card mb-4">
+        <h5 class="fw-semibold mb-3"><i class="bi bi-cash-coin me-2"></i>Order Summary</h5>
+        <div class="d-flex justify-content-between mb-2">
+          <span>Subtotal:</span>
+          <span class="fw-semibold">₹<%= subtotal.toFixed(2) %></span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+          <span>Delivery:</span>
+          <span class="text-success fw-semibold">Free</span>
+        </div>
+        <hr>
+        <div class="d-flex justify-content-between mb-3 fs-5">
+          <span><strong>Total:</strong></span>
+          <span class="fw-bold text-success">₹<%= grandTotal.toFixed(2) %></span>
+        </div>
+
+        <div class="alert alert-warning small">
+          <i class="bi bi-exclamation-triangle-fill me-1"></i> Once an order is placed, it can be canceled on the same day only.
+        </div>
+        <div class="alert alert-warning small mb-0">
+          <i class="bi bi-geo-alt-fill me-1"></i> Delivery available only within India.
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="total-card">
+        <h5 class="fw-semibold mb-3"><i class="bi bi-truck me-2"></i>Shipping Information</h5>
+        <form id="checkout-form">
+          <div class="mb-3">
+            <label for="address" class="form-label">Shipping Address</label>
+            <textarea name="address" id="address" class="form-control" rows="3" required placeholder="Enter full address"></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="phone" class="form-label">Phone Number</label>
+            <input type="tel" name="phone" id="phone" class="form-control" pattern="[0-9]{10}" maxlength="10" 
+                   oninput="this.value=this.value.replace(/[^0-9]/g,'')" required placeholder="Enter 10-digit phone number">
+          </div>
+          <% if (razorpayOrder) { %>
+            <button type="button" onclick="payNow()" class="btn btn-success w-100 py-2 fw-semibold">
+              <i class="bi bi-credit-card-2-front-fill me-2"></i>Confirm & Pay
+            </button>
+          <% } else { %>
+            <p class="text-muted">Add items to cart to proceed with payment.</p>
+          <% } %>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <% } else { %>
+  <!-- ===== Empty Cart ===== -->
+  <div class="empty-cart">
+    <i class="bi bi-cart-x"></i>
+    <p class="text-muted fs-5">Your cart is currently empty.</p>
+  </div>
+  <% } %>
+</div>
+
+<!-- Razorpay Checkout -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+  function payNow() {
+    const phone = document.getElementById("phone").value.trim();
+    const address = document.getElementById("address").value.trim();
+
+    if (!phone || phone.length !== 10) {
+      alert("Please enter a valid 10-digit phone number before proceeding.");
+      return;
+    }
+
+    if (!address) {
+      alert("Please enter a shipping address before proceeding.");
+      return;
+    }
+
+    const options = {
+      key: "<%= razorpayKey %>",
+      amount: "<%= razorpayOrder?.amount %>",
+      currency: "<%= razorpayOrder?.currency %>",
+      name: "BookNest",
+      description: "Order Payment",
+      image: "https://book-nest-wgrp.onrender.com/src/logo.png",
+      order_id: "<%= razorpayOrder?.id %>",
+      handler: function (response) {
+        fetch("/cart/verify-payment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...response, phone, address }),
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) window.location.href = "/orders";
+          else alert("Payment verification failed! Please contact support.");
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Something went wrong during payment verification.");
+        });
+      },
+      prefill: {
+        name: "<%= user?.username || 'Guest' %>",
+        email: "<%= user?.email || '' %>",
+        contact: phone,
+      },
+      theme: { color: "#198754" },
+    };
+
+    const rzp1 = new Razorpay(options);
+    rzp1.open();
+  }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

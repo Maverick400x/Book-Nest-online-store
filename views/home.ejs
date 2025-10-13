@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>BookNest - Discover Your Next Read</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+
+  <style>
+    :root {
+      --booknest-primary: #1e81b0; /* Deep Teal/Blue */
+      --booknest-secondary: #004d73; /* Darker Teal */
+    }
+
+    body {
+      padding-top: 75px; /* Increased padding for slightly taller navbar */
+      font-family: 'Inter', sans-serif;
+      background-color: #f4f7f6; /* Light gray-blue background */
+      line-height: 1.6;
+    }
+
+    /* --- Navbar & Branding --- */
+    .navbar {
+      background-color: var(--booknest-secondary) !important;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    .navbar-brand {
+      font-weight: 800;
+      color: #fff !important;
+    }
+    .navbar-brand span {
+      font-size: 1.3rem;
+      font-weight: 300;
+      color: #b3e5fc !important;
+    }
+
+    /* --- Headings --- */
+    h1, h2, h5 {
+      font-weight: 700;
+      text-align: center;
+      padding-bottom: 6px;
+      margin-bottom: 24px;
+      position: relative;
+    }
+    h2:after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      height: 3px;
+      width: 50px;
+      background-color: var(--booknest-primary);
+      border-radius: 5px;
+    }
+
+    /* --- Buttons and Links --- */
+    .btn-warning {
+      background-color: #ffc107;
+      border-color: #ffc107;
+      color: #212529;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    .btn-warning:hover {
+      background-color: #e0a800;
+      border-color: #e0aa00;
+      transform: translateY(-2px);
+    }
+
+    .btn-outline-primary {
+      color: var(--booknest-primary);
+      border-color: var(--booknest-primary);
+    }
+    .btn-outline-primary:hover {
+      background-color: var(--booknest-primary);
+      color: #fff;
+    }
+
+    /* --- Hero Section --- */
+    .hero-section {
+      background: linear-gradient(135deg, #e0f7fa 0%, #ffffff 100%);
+      border-bottom: 5px solid var(--booknest-primary);
+    }
+    .hero-title {
+      color: var(--booknest-secondary);
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.05);
+    }
+
+    /* --- Search Bar --- */
+    .search-input {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+      border: 1px solid #ced4da;
+    }
+    .search-input:focus {
+      border-color: var(--booknest-primary);
+      box-shadow: 0 0 0 0.25rem rgba(30, 129, 176, 0.25);
+    }
+
+    /* --- Card and Carousel --- */
+    .card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border: none;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    .card-body {
+      padding: 1.5rem 1rem;
+    }
+    .card-title {
+      font-size: 1.15rem;
+      border-bottom: none;
+      margin-bottom: 8px;
+    }
+    .card img {
+      height: 180px !important; /* Slightly taller images */
+      object-fit: contain;
+    }
+
+    /* --- Carousel Controls --- */
+    .carousel-control-prev,
+    .carousel-control-next {
+      width: 5%; /* Smaller target area */
+    }
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+      filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
+      background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+      border-radius: 50%;
+      padding: 15px;
+      height: 40px;
+      width: 40px;
+      opacity: 0.8;
+      transition: opacity 0.3s;
+    }
+    .carousel-control-prev-icon:hover,
+    .carousel-control-next-icon:hover {
+        opacity: 1;
+    }
+
+    /* --- Utility Colors --- */
+    .text-primary-nest { color: var(--booknest-primary) !important; }
+    .border-primary-nest { border-color: var(--booknest-primary) !important; }
+  </style>
+</head>
+<body>
+
+<%- include('partials/header') %>
+
+<div class="container-fluid text-dark py-5 hero-section">
+  <div class="text-center py-5">
+    <h1 class="display-3 fw-bold hero-title">📚 BookNest</h1>
+    <p class="lead text-muted mb-4">The ultimate portal for discovering and collecting books you love.</p>
+    <a href="/products" class="btn btn-lg btn-warning shadow-lg">Explore Books Now <i class="bi bi-arrow-right"></i></a>
+  </div>
+</div>
+
+<div class="container mt-4">
+
+  <div class="alert alert-info text-center fw-bold mt-3 border-0 shadow-sm" role="alert">
+    <i class="bi bi-megaphone-fill me-2"></i>
+    🎉 <em>Weekly Discounts coming soon! **Sign up** to get early access.</em>
+  </div>
+
+  <div class="my-5">
+    <form action="/products" method="GET" class="d-flex justify-content-center">
+      <div class="input-group w-100 w-md-75" style="max-width: 700px;">
+        <input type="text" name="search" class="form-control form-control-lg search-input rounded-start-pill border-end-0" placeholder="Search for books by title, author, or tag..." required>
+        <button type="submit" class="btn btn-outline-primary rounded-end-pill px-4">
+          <i class="bi bi-search"></i>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<% 
+  // Function to map standard Bootstrap colors to a new scheme for variety
+  const colorMap = {
+    'primary': 'primary',
+    'danger': 'danger',
+    'warning': 'warning',
+    'success': 'success',
+    'dark': 'dark'
+  };
+
+  function renderCarousel(id, title, colorKey, filterFn) {
+    let items = products.filter(filterFn);
+    const bsColor = colorMap[colorKey] || 'primary';
+    const titleColorClass = (colorKey === 'primary') ? 'text-primary-nest' : `text-${bsColor}`;
+    
+    if (items.length === 0) {
+      items = [{ title: 'No books found in this category', author: 'Check back soon!', price: 0, image: '' }];
+    }
+%>
+<div class="container mt-5 pt-3">
+  <h2 class="<%= titleColorClass %>"><%= title %></h2>
+  <div id="<%= id %>" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-inner p-3">
+      <% for (let i = 0; i < items.length; i += 3) { %>
+        <div class="carousel-item <%= i === 0 ? 'active' : '' %>">
+          <div class="row g-4"> <% items.slice(i, i + 3).forEach(product => { %>
+              <div class="col-sm-6 col-md-4">
+                <div class="card h-100 shadow-sm">
+                  <div class="card-body d-flex flex-column align-items-center">
+                    <div style="height: 180px; width: 100%; display: flex; justify-content: center; align-items: center; margin-bottom: 15px;">
+                        <img src="<%= product.image || '/src/books/default-book.png' %>" alt="<%= product.title %>" class="img-fluid" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                    </div>
+                    
+                    <h5 class="card-title text-center <%= titleColorClass %> mb-1 mt-auto"><%= product.title %></h5>
+                    <p class="card-text text-muted mb-1 small">By <%= product.author || 'Unknown' %></p>
+                    <p class="card-text mb-2 fw-bold fs-5">₹ <%= product.price %></p>
+                    
+                    <% if (product.limitedEdition) { %>
+                      <span class="badge bg-danger mb-3 py-2 px-3">Limited Edition!</span>
+                    <% } else if (product.hotSale) { %>
+                      <span class="badge bg-warning text-dark mb-3 py-2 px-3">🔥 Hot Sale</span>
+                    <% } %>
+                    
+                    <div class="d-grid gap-2 mt-2 w-100">
+                      <a href="/products/<%= product.id || product._id %>" class="btn btn-sm btn-outline-<%= bsColor %>">View Details</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+      <% } %>
+    </div>
+    
+    <button class="carousel-control-prev" type="button" data-bs-target="#<%= id %>" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#<%= id %>" data-bs-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Next</span>
+    </button>
+  </div>
+</div>
+<% } %>
+
+<% 
+  // NOTE: 'products' array is assumed to be available in the EJS scope.
+  // The filter functions are placeholders for your actual data logic.
+  const sampleProducts = products || []; // Fallback if 'products' is undefined
+
+  renderCarousel('trendingCarousel', 'Trending Books', 'primary', () => sampleProducts.length > 0);
+  renderCarousel('limitedCarousel', 'Limited Edition Books', 'danger', p => p.limitedEdition);
+  renderCarousel('hotSaleCarousel', 'Hot Sale - Top Picks', 'warning', p => p.hotSale);
+  renderCarousel('marvelCarousel', 'Marvel Superheroes', 'danger', p => p.tag === 'marvel');
+  renderCarousel('dcCarousel', 'DC Superheroes', 'primary', p => p.tag === 'dc');
+  renderCarousel('mangaCarousel', 'Manga Reads', 'success', p => p.tag === 'manga');
+%>
+
+<div class="container mt-5 py-5 text-center bg-light rounded-3 shadow-sm mb-5">
+  <h2>📞 Need Assistance?</h2>
+  <p class="lead">Our team is ready to help you find the perfect read or resolve any issues.</p>
+  <a href="/contact" class="btn btn-lg btn-outline-primary-nest me-3 mt-3">Contact Us <i class="bi bi-chat-dots-fill"></i></a>
+  <% if (!user) { %>
+    <a href="/login" class="btn btn-lg btn-outline-secondary mt-3">Log In</a>
+  <% } %>
+</div>
+
+<%- include('partials/footer') %>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="cartToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body">Book added to cart!</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Script to show toast on successful addition to cart
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('added') === 'true') {
+    const toast = new bootstrap.Toast(document.getElementById('cartToast'));
+    toast.show();
+  }
+</script>
+</body>
+</html>
