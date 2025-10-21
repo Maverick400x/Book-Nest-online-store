@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Discounts - Terms & Conditions | BookNest</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <%- include('partials/header') %>
+    <div class="container my-5">
+        <h2 class="text-center mb-4">Discounts - Terms & Conditions</h2>
+
+        <!-- Section 1: General Discounts -->
+        <section class="mb-4">
+            <h4 class="text-primary">🛍️ General Discount Terms</h4>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">🎉 Weekly discounts will be applied automatically during checkout.</li>
+                <li class="list-group-item">📅 Discount period is subject to change without prior notice.</li>
+                <li class="list-group-item">💥 Offers valid only for select products or categories as mentioned.</li>
+            </ul>
+        </section>
+
+        <!-- Section 2: Discount Restrictions -->
+        <section class="mb-4">
+            <h4 class="text-danger">⚠️ Discount Restrictions</h4>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">🛒 Discounts may not be combined with other promotional codes.</li>
+                <li class="list-group-item">🚚 Discounts apply only to product prices, not to shipping or taxes.</li>
+                <li class="list-group-item">🔁 No returns or exchanges on discounted items.</li>
+            </ul>
+        </section>
+
+        <!-- Section 3: Special Gift Offers -->
+        <section class="mb-4">
+            <h4 class="text-success">🎁 Special Gift Offers</h4>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">📦 Gift book options are available only when cart value exceeds ₹1500.</li>
+                <li class="list-group-item">🎊 Customers can choose from selected gift books at checkout.</li>
+            </ul>
+        </section>
+        <!-- Section 4: Book Limit Per User -->
+        <section class="mb-4">
+            <h4 class="text-warning">📚 Book Limit Per User</h4>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">🔢 A maximum of 10 books can be purchased per user per order.</li>
+                <li class="list-group-item">👤 This limit helps ensure fair access to all customers.</li>
+                <li class="list-group-item">📦 Bulk or repeat orders may be subject to review or cancellation.</li>
+            </ul>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <%- include('partials/footer') %>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
