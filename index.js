@@ -29,18 +29,17 @@ import { Order } from "./models/order.model.js";
 
 const app = express();
 
-
 // Middlewares
-
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(express.static("public"));
+app.use(express.static(path.join(process.cwd(), "public")));
 
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "secret-key",
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
+    cookie: { secure: process.env.NODE_ENV === "production" }, // secure cookie in prod
   })
 );
 
@@ -48,9 +47,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(loggerMiddleware);
 
-
 // Passport Google OAuth
-
 passport.use(
   new GoogleStrategy(
     {
@@ -63,7 +60,6 @@ passport.use(
         const email = profile.emails[0].value;
         let user = await User.findOne({ email });
 
-        // Auto-register if user does not exist
         if (!user) {
           const randomPassword = crypto.randomBytes(16).toString("hex");
           const hashedPassword = await bcrypt.hash(randomPassword, 12);
@@ -118,15 +114,18 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-
 // View Engine
-
 app.set("view engine", "ejs");
 app.set("views", path.join(process.cwd(), "views"));
 
+// Global template variables
+app.use((req, res, next) => {
+  res.locals.user = req.session.user || null;
+  res.locals.cartCount = req.session.cart ? req.session.cart.length : 0;
+  next();
+});
 
 // Routes
-
 app.use("/products", productRoutes);
 app.use("/cart", cartRoutes);
 app.use("/users", userRoutes);
@@ -143,10 +142,7 @@ app.get(
   "/auth/google/callback",
   passport.authenticate("google", { failureRedirect: "/users/login" }),
   (req, res) => {
-    if (!req.user) {
-      req.session.error = "⚠️ Google login failed. Please try again.";
-      return res.redirect("/users/login");
-    }
+    if (!req.user) return res.redirect("/users/login");
 
     req.session.user = {
       id: req.user._id,
@@ -154,7 +150,6 @@ app.get(
       email: req.user.email,
       username: req.user.username,
     };
-    req.session.success = "🎉 Logged in with Google successfully!";
     res.redirect("/");
   }
 );
@@ -167,8 +162,8 @@ app.get("/users/account", async (req, res) => {
   const userOrders = await Order.find({ userId: user.id }).sort({ createdAt: -1 });
   const latestOrder = userOrders[userOrders.length - 1];
 
-  const allBooks = userOrders.flatMap((order) =>
-    order.items.map((item) => item.title)
+  const allBooks = userOrders.flatMap(order =>
+    order.items.map(item => item.title)
   );
 
   const enrichedUser = {
@@ -191,22 +186,11 @@ app.get("/", (req, res) => {
   });
 });
 
-app.use((req, res, next) => {
-  res.locals.user = req.session.user || null;
-  res.locals.cartCount = req.session.cart ? req.session.cart.length : 0;
-  next();
-});
-
-
 // 404 Handler
-
 app.use((req, res) => {
   res.status(404).render("404", { title: "Page Not Found" });
 });
 
-
 // Start Server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () =>
-  console.log(`✅ Server running on http://localhost:${PORT}`)
-);
+app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
