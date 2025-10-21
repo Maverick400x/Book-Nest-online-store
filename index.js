@@ -29,7 +29,7 @@ import { Order } from "./models/order.model.js";
 
 const app = express();
 
-// Middlewares
+// Middleware setup
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(process.cwd(), "public")));
@@ -39,7 +39,7 @@ app.use(
     secret: process.env.SESSION_SECRET || "secret-key",
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: process.env.NODE_ENV === "production" }, // secure cookie in prod
+    cookie: { secure: process.env.NODE_ENV === "production" }, // secure in prod
   })
 );
 
@@ -47,7 +47,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(loggerMiddleware);
 
-// Passport Google OAuth
+// Passport Google OAuth setup
 passport.use(
   new GoogleStrategy(
     {
@@ -104,6 +104,7 @@ passport.use(
   )
 );
 
+// Passport session handling
 passport.serializeUser((user, done) => done(null, user._id));
 passport.deserializeUser(async (id, done) => {
   try {
@@ -114,7 +115,7 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-// View Engine
+// View engine
 app.set("view engine", "ejs");
 app.set("views", path.join(process.cwd(), "views"));
 
@@ -132,11 +133,8 @@ app.use("/users", userRoutes);
 app.use("/orders", orderRoutes);
 app.use("/contact", contactRoutes);
 
-// Google OAuth Routes
-app.get(
-  "/auth/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
-);
+// Google OAuth routes
+app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
 app.get(
   "/auth/google/callback",
@@ -150,7 +148,8 @@ app.get(
       email: req.user.email,
       username: req.user.username,
     };
-    res.redirect("/");
+
+    res.redirect("/"); // Redirect home after login
   }
 );
 
@@ -162,9 +161,7 @@ app.get("/users/account", async (req, res) => {
   const userOrders = await Order.find({ userId: user.id }).sort({ createdAt: -1 });
   const latestOrder = userOrders[userOrders.length - 1];
 
-  const allBooks = userOrders.flatMap(order =>
-    order.items.map(item => item.title)
-  );
+  const allBooks = userOrders.flatMap(order => order.items.map(item => item.title));
 
   const enrichedUser = {
     ...user,
@@ -179,18 +176,12 @@ app.get("/users/account", async (req, res) => {
 
 // Home Page
 app.get("/", (req, res) => {
-  res.render("home", {
-    title: "Online Bookstore",
-    user: req.session.user,
-    products,
-  });
+  res.render("home", { title: "Online Bookstore", user: req.session.user, products });
 });
 
 // 404 Handler
-app.use((req, res) => {
-  res.status(404).render("404", { title: "Page Not Found" });
-});
+app.use((req, res) => res.status(404).render("404", { title: "Page Not Found" }));
 
-// Start Server
+// Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`✅ Server running on http://localhost:${PORT}`));
