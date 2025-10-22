@@ -42,6 +42,7 @@
       cursor: pointer;
     }
 
+    /* Links section improved */
     .links-section a {
       transition: all 0.2s;
     }
@@ -52,30 +53,6 @@
     .links-section .forgot-link i {
       margin-left: 4px;
     }
-
-    /* Google Button Styling */
-    .btn-google {
-      background: #fff;
-      color: #444;
-      border: 1px solid #ddd;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 500;
-      padding: 0.5rem;
-      gap: 8px;
-    }
-
-    .btn-google:hover {
-      background: #f7f7f7;
-      color: #000;
-      text-decoration: none;
-    }
-
-    .btn-google svg {
-      width: 20px;
-      height: 20px;
-    }
   </style>
 </head>
 <body>
@@ -85,7 +62,7 @@
   <div class="left-panel d-none d-md-flex flex-column justify-content-center text-white p-5">
     <div>
       <h1 class="fw-bold">Welcome Back 👋</h1>
-      <p class="lead mt-3">Log in with your email and password or Google to access your BookNest dashboard.</p>
+      <p class="lead mt-3">Log in with your email and password to access your BookNest dashboard.</p>
       <p class="mt-4">Secure. Simple. Reliable.</p>
     </div>
   </div>
@@ -98,11 +75,6 @@
       <% if (typeof error !== "undefined" && error) { %>
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
           <%= error %>
-          <% if (error.includes("get verified by registering")) { %>
-            <div class="mt-2 text-danger fw-semibold">
-              ⚠️ If you are already registered, you can simply log in using Google OAuth.
-            </div>
-          <% } %>
           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
       <% } %>
@@ -134,31 +106,10 @@
         </div>
 
         <!-- Submit Button -->
-        <button type="submit" class="btn btn-primary w-100 shadow-sm mb-3">Login</button>
+        <button type="submit" class="btn btn-primary w-100 shadow-sm">Login</button>
       </form>
 
-      <!-- OR Divider -->
-      <div class="d-flex align-items-center my-3">
-        <hr class="flex-grow-1">
-        <span class="mx-2 text-muted">OR</span>
-        <hr class="flex-grow-1">
-      </div>
-
-      <!-- Google Login -->
-      <div class="d-grid mb-3">
-        <a href="/auth/google" class="btn btn-google shadow-sm">
-          <!-- Google Logo -->
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
-            <path fill="#EA4335" d="M488 261.8c0-17.4-1.6-34.1-4.7-50.3H249.3v95.2h135.4c-5.8 30-23.2 55.5-49.4 72.7v60.3h79.8c46.6-42.9 73.9-106 73.9-177.9z"/>
-            <path fill="#34A853" d="M249.3 512c67.1 0 123.5-22.2 164.6-60.1l-79.8-60.3c-22.1 14.9-50.5 23.7-84.8 23.7-65.2 0-120.5-44-140.4-103.2H27.7v64.8C68.8 463.1 152.6 512 249.3 512z"/>
-            <path fill="#4A90E2" d="M108.9 308.1c-4.8-14.4-7.5-29.7-7.5-45.3s2.7-30.9 7.5-45.3V152H27.7c-14 28-22 59.5-22 92s8 64 22 92l81.2-27.9z"/>
-            <path fill="#FBBC05" d="M249.3 97.3c35.7 0 67.3 12.3 92.3 36.5l69-69C372.8 26.5 315.4 0 249.3 0 152.6 0 68.8 48.9 27.7 121.2l81.2 64.8c19.9-59.2 75.2-103.2 140.4-103.2z"/>
-          </svg>
-          Login with Google
-        </a>
-      </div>
-
-      <!-- Links Section -->
+      <!-- Links Section (Improved UI) -->
       <div class="links-section d-flex flex-column flex-md-row justify-content-between align-items-center mt-4 gap-2">
         <div class="text-center text-md-start">
           <span class="text-muted">Don’t have an account?</span>
