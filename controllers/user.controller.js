@@ -3,37 +3,39 @@ import bcrypt from "bcryptjs";
 import { User } from "../models/user.model.js";
 import { sendMail } from "../utils/mailer.js";
 
-// =================== SESSION MESSAGE HELPER ===================
-const clearSessionMessages = (req) => {
+// =================== RENDER PAGES ===================
+
+export const renderLoginPage = (req, res) => {
   const { error, success } = req.session;
   req.session.error = null;
   req.session.success = null;
-  return { error, success };
-};
-
-// =================== RENDER PAGES ===================
-export const renderLoginPage = (req, res) => {
-  const { error, success } = clearSessionMessages(req);
   res.render("login", { title: "Login", error, success });
 };
 
 export const renderRegisterPage = (req, res) => {
-  const { error, success } = clearSessionMessages(req);
+  const { error, success } = req.session;
+  req.session.error = null;
+  req.session.success = null;
   res.render("register", { title: "Register", error, success });
 };
 
 export const renderForgotPasswordPage = (req, res) => {
-  const { error, success } = clearSessionMessages(req);
+  const { error, success } = req.session;
+  req.session.error = null;
+  req.session.success = null;
   const email = req.query.email || "";
   res.render("forgot-password", { title: "Forgot Password", error, success, email });
 };
 
 export const renderResetPasswordPage = (req, res) => {
-  const { error, success } = clearSessionMessages(req);
+  const { error, success } = req.session;
+  req.session.error = null;
+  req.session.success = null;
   res.render("reset-password", { title: "Reset Password", token: req.params.token, error, success });
 };
 
 // =================== REGISTER USER ===================
+
 export const registerUser = async (req, res) => {
   const { fullName, username, email, password } = req.body;
 
@@ -44,13 +46,11 @@ export const registerUser = async (req, res) => {
       return res.redirect("/users/register");
     }
 
-    const hashedPassword = await bcrypt.hash(password, 12);
-
     const newUser = new User({
       fullName,
       username,
       email,
-      password: hashedPassword,
+      password, // bcrypt handled in pre-save hook
       isVerified: true,
     });
 
@@ -59,7 +59,7 @@ export const registerUser = async (req, res) => {
     req.session.success = "✅ Registration successful! You can now log in.";
     res.redirect("/users/login");
 
-    // Send Welcome Email asynchronously
+    // Send Welcome Email asynchronously (non-blocking)
     setImmediate(async () => {
       try {
         const text = `Hello ${fullName}, welcome to BookNest! Your account has been created successfully.`;
@@ -87,12 +87,13 @@ export const registerUser = async (req, res) => {
 };
 
 // =================== LOGIN USER ===================
+
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   try {
     const user = await User.findOne({ email });
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (!user || !(await user.comparePassword(password))) {
       req.session.error = "❌ Invalid email or password.";
       return res.redirect("/users/login");
     }
@@ -110,7 +111,7 @@ export const loginUser = async (req, res) => {
     // Send Login Notification Email asynchronously
     setImmediate(async () => {
       try {
-        const loginText = `Hello ${user.fullName}, you just logged in to your BookNest account on ${new Date().toLocaleString()}.`;
+        const loginText = `Hello ${user.fullName}, you just logged in to your BookNest account on ${new Date().toLocaleString()}. If this wasn’t you, please reset your password immediately.`;
         const loginHtml = `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; line-height: 1.6;">
             <div style="text-align: center; margin-bottom: 20px;">
@@ -135,71 +136,8 @@ export const loginUser = async (req, res) => {
   }
 };
 
-// =================== GOOGLE LOGIN HANDLER ===================
-export const googleLoginHandler = async (req, res) => {
-  try {
-    let user = req.user;
-
-    // If user does not exist in DB, create automatically
-    if (!user) {
-      const profile = req.session.googleProfile;
-      if (!profile) {
-        req.session.error = "⚠️ Google login failed. Please try again.";
-        return res.redirect("/users/login");
-      }
-
-      const randomPassword = crypto.randomBytes(16).toString("hex");
-      const hashedPassword = await bcrypt.hash(randomPassword, 12);
-
-      user = new User({
-        fullName: profile.displayName,
-        username: profile.emails[0].value.split("@")[0],
-        email: profile.emails[0].value,
-        password: hashedPassword,
-        isVerified: true,
-        googleId: profile.id,
-      });
-
-      await user.save();
-    }
-
-    // Set session
-    req.session.user = {
-      id: user._id,
-      fullName: user.fullName,
-      email: user.email,
-      username: user.username,
-    };
-    req.session.success = "🎉 Logged in with Google successfully!";
-    res.redirect("/");
-
-    // Optional: send welcome email for first-time Google login
-    setImmediate(async () => {
-      try {
-        const text = `Hello ${user.fullName}, welcome to BookNest! You logged in using Google.`;
-        const html = `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; line-height: 1.6;">
-            <div style="text-align: center; margin-bottom: 20px;">
-              <img src="https://book-nest-wgrp.onrender.com/logo.png" alt="BookNest Logo" style="height: 60px;">
-              <h2 style="color: #333;">🎉 Welcome to <strong>BookNest</strong>, ${user.fullName}!</h2>
-            </div>
-            <p>Welcome back! You logged in using your Google account.</p>
-            <p style="margin-top: 20px;">Best regards,<br><strong>— Team BookNest</strong></p>
-          </div>
-        `;
-        await sendMail(user.email, "🎉 Welcome to BookNest", text, html);
-      } catch (err) {
-        console.error("Google login email failed:", err);
-      }
-    });
-  } catch (err) {
-    console.error("Google login handler error:", err);
-    req.session.error = "❌ Google login failed.";
-    res.redirect("/users/login");
-  }
-};
-
 // =================== FORGOT PASSWORD ===================
+
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
@@ -251,6 +189,7 @@ export const forgotPassword = async (req, res) => {
 };
 
 // =================== RESET PASSWORD ===================
+
 export const resetPassword = async (req, res) => {
   const { token } = req.params;
   const { password } = req.body;
@@ -266,7 +205,7 @@ export const resetPassword = async (req, res) => {
       return res.redirect("/users/forgot-password");
     }
 
-    user.password = await bcrypt.hash(password, 12);
+    user.password = password;
     user.resetToken = undefined;
     user.resetTokenExpiry = undefined;
     await user.save();
@@ -281,6 +220,7 @@ export const resetPassword = async (req, res) => {
 };
 
 // =================== LOGOUT ===================
+
 export const logoutUser = (req, res) => {
   const user = req.session.user;
   req.session.destroy((err) => {
@@ -317,3 +257,4 @@ export const logoutUser = (req, res) => {
     }
   });
 };
+
